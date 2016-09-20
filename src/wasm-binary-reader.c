@@ -81,14 +81,6 @@ WASM_STATIC_ASSERT(WASM_ARRAY_SIZE(s_type_names) == WASM_NUM_TYPES);
 static const char* s_opcode_name[] = {WASM_FOREACH_OPCODE(V)};
 #undef V
 
-/* clang-format off */
-enum {
-#define V(name) WASM_SECTION_INDEX_##name,
-  WASM_FOREACH_SECTION(V)
-#undef V
-  WASM_NUM_SECTIONS
-};
-/* clang-format on */
 
 typedef struct Context {
   const uint8_t* data;
@@ -327,13 +319,22 @@ static WasmBool is_non_void_type(uint8_t type) {
 static WasmBool skip_until_section(Context* ctx, int section_index) {
   uint32_t section_start_offset = ctx->offset;
   uint32_t section_size = 0;
+  uint32_t section_id = 0;
   if (ctx->offset == ctx->size) {
     /* ok, no more sections */
     return WASM_FALSE;
   }
 
   WasmStringSlice section_name;
+  in_u32_leb128(ctx, &section_id, "section id");
+  if (section_id > 0) {
+      --section_id; //convert to 0-base
+      section_name.start = s_section_name[section_id];
+      section_name.length = strlen(s_section_name[section_id]);
+  }
+  else {
   in_str(ctx, &section_name, "section name");
+  }
   in_u32_leb128(ctx, &section_size, "section size");
 
   if (ctx->offset + section_size > ctx->size)

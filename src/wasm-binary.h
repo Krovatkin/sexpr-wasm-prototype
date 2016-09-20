@@ -50,4 +50,20 @@
   V(DATA)                       \
   V(NAME)
 
+ /* clang-format off */
+enum {
+#define V(name) WASM_SECTION_INDEX_##name,
+    WASM_FOREACH_SECTION(V)
+#undef V
+    WASM_NUM_SECTIONS
+};
+/* clang-format on */
+
+#define INNER_V(NAME) NAME,
+#define V(NAME) INNER_V(WASM_SECTION_NAME_##NAME)
+
+static const char* s_section_name[] = { WASM_FOREACH_SECTION(V) };
+#undef V
+#undef INNER_V
+
 #endif /* WASM_BINARY_H_ */
