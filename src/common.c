@@ -34,6 +34,12 @@
 WasmOpcodeInfo g_wasm_opcode_info[] = {WASM_FOREACH_OPCODE(V)};
 #undef V
 
+/*
+#define V(type, num, name)  {WASM_TYPE_##type, num, name}
+WasmSimdTypeInfo g_wasm_simd_type_info[] = {WASM_FOREACH_SIMD_TYPE(V)};
+#undef V
+*/
+
 const char* g_wasm_kind_name[] = {"func", "table", "memory", "global"};
 WASM_STATIC_ASSERT(WASM_ARRAY_SIZE(g_wasm_kind_name) ==
                    WASM_NUM_EXTERNAL_KINDS);

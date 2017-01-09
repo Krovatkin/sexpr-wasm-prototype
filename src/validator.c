@@ -576,6 +576,9 @@ static void check_has_memory(Context* ctx,
 
 static void check_expr(Context* ctx, const WasmExpr* expr) {
   switch (expr->type) {
+    case WASM_EXPR_TYPE_SIMD_CTOR:
+      assert(0);
+      break;
     case WASM_EXPR_TYPE_BINARY:
       check_opcode2(ctx, &expr->loc, expr->binary.opcode);
       break;

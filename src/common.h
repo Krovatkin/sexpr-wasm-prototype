@@ -40,6 +40,7 @@
 #define WASM_ZERO_MEMORY(var) memset((void*)&(var), 0, sizeof(var))
 #define WASM_USE(x) (void)x
 
+#define SIMD_VEC_SIZE_IN_DBWORDS 4
 #define WASM_UNKNOWN_OFFSET ((uint32_t)~0)
 #define WASM_PAGE_SIZE 0x10000 /* 64k */
 #define WASM_MAX_PAGES 0x10000 /* # of pages that fit in 32-bit address space */
@@ -146,11 +147,15 @@ typedef enum WasmType {
   WASM_TYPE_I64 = -0x02,
   WASM_TYPE_F32 = -0x03,
   WASM_TYPE_F64 = -0x04,
+  WASM_TYPE_F32X4 = -0x05,
+  WASM_TYPE_I32X4 = -0x06,
+  //@TODO add the rest of the types
   WASM_TYPE_ANYFUNC = -0x10,
-  WASM_TYPE_FUNC = -0x20,
-  WASM_TYPE_VOID = -0x40,
+  WASM_TYPE_FUNC  = -0x20,
+  WASM_TYPE_VOID  = -0x40,
+
   WASM_TYPE____ = WASM_TYPE_VOID, /* convenient for the opcode table below */
-  WASM_TYPE_ANY = 0, /* Not actually specified, but useful for type-checking */
+  WASM_TYPE_ANY = 0, /* Not actually specified, but useful for type-chWASM_FOREACH_OPCODEecking */
 } WasmType;
 
 /* matches binary format, do not change */
@@ -170,6 +175,7 @@ typedef struct WasmLimits {
 
 enum { WASM_USE_NATURAL_ALIGNMENT = 0xFFFFFFFF };
 
+ 
 /*
  *   tr: result type
  *   t1: type of the 1st parameter
@@ -348,13 +354,48 @@ enum { WASM_USE_NATURAL_ALIGNMENT = 0xFFFFFFFF };
   V(F64, I32, ___, 0, 0xb7, F64_CONVERT_S_I32, "f64.convert_s/i32")     \
   V(F64, I32, ___, 0, 0xb8, F64_CONVERT_U_I32, "f64.convert_u/i32")     \
   V(F64, I64, ___, 0, 0xb9, F64_CONVERT_S_I64, "f64.convert_s/i64")     \
-  V(F64, I64, ___, 0, 0xba, F64_CONVERT_U_I64, "f64.convert_u/i64")     \
+  V(F64, I64, ___, 0, 0xba, F64_CONVERT_U_I64, "f6WASM_FOREACH_OPCODE4.convert_u/i64")     \
   V(F64, F32, ___, 0, 0xbb, F64_PROMOTE_F32, "f64.promote/f32")         \
   V(I32, F32, ___, 0, 0xbc, I32_REINTERPRET_F32, "i32.reinterpret/f32") \
   V(I64, F64, ___, 0, 0xbd, I64_REINTERPRET_F64, "i64.reinterpret/f64") \
   V(F32, I32, ___, 0, 0xbe, F32_REINTERPRET_I32, "f32.reinterpret/i32") \
-  V(F64, I64, ___, 0, 0xbf, F64_REINTERPRET_I64, "f64.reinterpret/i64")
+  V(F64, I64, ___, 0, 0xbf, F64_REINTERPRET_I64, "f64.reinterpret/i64") \
+  V(F32X4, F32, ___, 4, 0xc0, F32X4_CONST, "f32x4.const")               \
+  V(F32X4, F32, ___, 0, 0xc1, F32X4_SPLAT, "f32x4.splat")               \
+  V(F32, F32X4, I32, 0, 0xc2, F32X4_EXTRACT_LANE, "f32x4.extractLane")  \
+  V(F32X4, F32X4, I32, 0, 0xc3, F32X4_REPLACE_LANE, "f32x4.replaceLane")\
+  V(I32, F32X4, F32X4, 0, 0xc4, F32X4_EQ, "f32x4.eq")                   \
+  V(I32, F32X4, F32X4, 0, 0xc5, F32X4_NE, "f32x4.ne")                   \
+  V(I32, F32X4, F32X4, 0, 0xc6, F32X4_LT, "f32x4.lt")                   \
+  V(I32, F32X4, F32X4, 0, 0xc7, F32X4_LE, "f32x4.le")                   \
+  V(I32, F32X4, F32X4, 0, 0xc8, F32X4_GT, "f32x4.gt")                   \
+  V(I32, F32X4, F32X4, 0, 0xc9, F32X4_GE, "f32x4.ge")                   \
+  V(F32X4, I32, ___, 16,  0xca, F32X4_LOAD, "f32x4.load")               \
+  V(___, F32X4, I32, 16,  0xcb, F32X4_STORE, "f32x4.store")             \
+  V(F32X4, I32, ___, 16,  0xcc, F32X4_LOAD1, "f32x4.load1")             \
+  V(F32X4, I32, ___, 16,  0xcd, F32X4_LOAD2, "f32x4.load2")             \
+  V(F32X4, I32, ___, 16,  0xce, F32X4_LOAD3, "f32x4.load3")             \
+  V(___, F32X4, I32, 16,  0xd0, F32X4_STORE1, "f32x4.store1")           \
+  V(___, F32X4, I32, 16,  0xd1, F32X4_STORE2, "f32x4.store2")           \
+  V(___, F32X4, I32, 16,  0xd2, F32X4_STORE3, "f32x4.store3")           \
+  V(F32X4, F32X4, ___, 0, 0xd3, F32X4_NEG,    "f32x4.neg")              \
+  V(F32X4, F32X4, ___, 0, 0xd4, F32X4_ABS,    "f32x4.abs")              \
+  V(F32X4, F32X4, F32X4, 0, 0xd5, F32X4_MIN, "f32x4.min")               \
+  V(F32X4, F32X4, F32X4, 0, 0xd6, F32X4_MAX, "f32x4.max")               \
+  V(F32X4, F32X4, F32X4, 0, 0xd7, F32X4_MIN_NUM, "f32x4.min_num")       \
+  V(F32X4, F32X4, F32X4, 0, 0xd8, F32X4_MAX_NUM, "f32x4.max_num")       \
+  V(F32X4, F32X4, F32X4, 0, 0xd9, F32X4_ADD, "f32x4.add")               \
+  V(F32X4, F32X4, F32X4, 0, 0xda, F32X4_SUB, "f32x4.sub")               \
+  V(F32X4, F32X4, F32X4, 0, 0xdb, F32X4_DIV, "f32x4.div")               \
+  V(F32X4, F32X4, F32X4, 0, 0xdc, F32X4_MUL, "f32x4.mul")               \
+  V(F32X4, F32X4, ___,   0, 0xdd, F32X4_RCPPS,"f32x4.rcpps")            \
+  V(F32X4, F32X4, ___,   0, 0xde, F32X4_RSQRTPS,"f32x4.rsqrtps")        \
 
+/*  
+#define WASM_FOREACH_SIMD_TYPE(V)                                       \
+  V(I32, 4, "f32x4")                                                    //@TODO add limits?? to make sure that a value fits into a lane
+*/ 
+ 
 typedef enum WasmOpcode {
 #define V(rtype, type1, type2, mem_size, code, NAME, text) \
   WASM_OPCODE_##NAME = code,
@@ -370,6 +411,14 @@ typedef struct WasmOpcodeInfo {
   WasmType param2_type;
   int memory_size;
 } WasmOpcodeInfo;
+
+/*
+typedef struct WasmSimdTypeInfo {
+    WasmType lane_type;
+    unsigned lanes;
+    const char* name;
+} WasmSimdTypeInfo;
+*/
 
 typedef enum WasmLiteralType {
   WASM_LITERAL_TYPE_INT,
@@ -421,11 +470,37 @@ void wasm_init_stdio();
 
 /* opcode info */
 extern WasmOpcodeInfo g_wasm_opcode_info[];
+//extern WasmSimdTypeInfo g_wasm_simd_type_info[];
+
+/*
+static unsigned number_of_trailing_zeros(unsigned n) {
+
+    //@TODO make it faster
+    unsigned index = 0;
+    while (!(1<<index++ & n));
+    
+    return index;
+}
+
+static WASM_INLINE unsigned simd_type_to_ordinal (WasmType type) {
+    assert (type >= WASM_TYPE_F32X4);
+    return number_of_trailing_zeros(type) - number_of_trailing_zeros (WASM_TYPE_F32X4);
+}
+
+static WASM_INLINE unsigned get_number_lanes(WasmType type) {
+    return g_wasm_simd_type_info[simd_type_to_ordinal(type)].lanes;
+}
+
+static WASM_INLINE WasmType get_lane_type(WasmType type) {
+   return  g_wasm_simd_type_info[simd_type_to_ordinal(type)].lane_type;
+}
+*/
 
 static WASM_INLINE const char* wasm_get_opcode_name(WasmOpcode opcode) {
   assert(opcode < WASM_NUM_OPCODES);
   return g_wasm_opcode_info[opcode].name;
 }
+
 
 static WASM_INLINE WasmType wasm_get_opcode_result_type(WasmOpcode opcode) {
   assert(opcode < WASM_NUM_OPCODES);

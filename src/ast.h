@@ -52,6 +52,7 @@ typedef struct WasmConst {
     uint64_t u64;
     uint32_t f32_bits;
     uint64_t f64_bits;
+    uint32_t v128_bits[4];
   };
 } WasmConst;
 WASM_DEFINE_VECTOR(const, WasmConst);
@@ -83,6 +84,7 @@ typedef enum WasmExprType {
   WASM_EXPR_TYPE_STORE,
   WASM_EXPR_TYPE_TEE_LOCAL,
   WASM_EXPR_TYPE_UNARY,
+  WASM_EXPR_TYPE_SIMD_CTOR,
   WASM_EXPR_TYPE_UNREACHABLE,
 } WasmExprType;
 
@@ -100,7 +102,7 @@ struct WasmExpr {
   WasmExprType type;
   WasmExpr* next;
   union {
-    struct { WasmOpcode opcode; } binary, compare, convert, unary;
+    struct { WasmOpcode opcode; } binary, compare, convert, unary, simd_ctor;
     WasmBlock block, loop;
     struct { WasmVar var; } br, br_if;
     struct { WasmVarVector targets; WasmVar default_target; } br_table;
@@ -433,6 +435,8 @@ WasmExpr* wasm_new_store_expr(struct WasmAllocator*);
 WasmExpr* wasm_new_tee_local_expr(struct WasmAllocator*);
 WasmExpr* wasm_new_unary_expr(struct WasmAllocator*);
 WasmExpr* wasm_new_unreachable_expr(struct WasmAllocator*);
+WasmExpr* wasm_new_simd_ctor_expr(struct WasmAllocator*);
+
 
 /* destruction functions. not needed unless you're creating your own AST
  elements */

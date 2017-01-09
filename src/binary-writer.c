@@ -289,6 +289,9 @@ static void write_expr(Context* ctx,
                        const WasmFunc* func,
                        const WasmExpr* expr) {
   switch (expr->type) {
+    case WASM_EXPR_TYPE_SIMD_CTOR:
+        assert(0); //@TODO
+        break;
     case WASM_EXPR_TYPE_BINARY:
       wasm_write_opcode(&ctx->stream, expr->binary.opcode);
       break;
@@ -365,6 +368,11 @@ static void write_expr(Context* ctx,
           wasm_write_opcode(&ctx->stream, WASM_OPCODE_F64_CONST);
           wasm_write_u64(&ctx->stream, expr->const_.f64_bits, "f64 literal");
           break;
+        case WASM_TYPE_F32X4:
+        	wasm_write_opcode(&ctx->stream, WASM_OPCODE_F32X4_CONST);
+        	for (unsigned i = 0; i < SIMD_VEC_SIZE_IN_DBWORDS; i++)
+        	wasm_write_u32(&ctx->stream, expr->const_.v128_bits[i], "f32_bits");
+        	break;
         default:
           assert(0);
       }
