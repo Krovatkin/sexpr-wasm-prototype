@@ -289,6 +289,8 @@ int wasm_ast_lexer_lex(WASM_AST_PARSER_STYPE* lval,
     <i> "align=" nat          { TEXT_AT(6); RETURN(ALIGN_EQ_NAT); }
     <i> "i32.const"           { TYPE(I32); RETURN(CONST); }
     <i> "i64.const"           { TYPE(I64); RETURN(CONST); }
+    <i> "i32x4.const"         { OPCODE(I32X4_CONST); RETURN(SIMD_CTOR); }
+    <i> "i16x8.const"         { OPCODE(I16X8_CONST); RETURN(SIMD_CTOR); }
     <i> "f32.const"           { TYPE(F32); RETURN(CONST); }
     <i> "f64.const"           { TYPE(F64); RETURN(CONST); }
     <i> "f32x4.const"         { OPCODE(F32X4_CONST); RETURN(SIMD_CTOR); }

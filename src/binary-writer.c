@@ -368,11 +368,15 @@ static void write_expr(Context* ctx,
           wasm_write_opcode(&ctx->stream, WASM_OPCODE_F64_CONST);
           wasm_write_u64(&ctx->stream, expr->const_.f64_bits, "f64 literal");
           break;
+          {
         case WASM_TYPE_F32X4:
-        	wasm_write_opcode(&ctx->stream, WASM_OPCODE_F32X4_CONST);
+        case WASM_TYPE_I32X4:
+        case WASM_TYPE_I16X8:
+        	wasm_write_opcode(&ctx->stream, get_simd_const_opcode(expr->const_.type));
         	for (unsigned i = 0; i < SIMD_VEC_SIZE_IN_DBWORDS; i++)
-        	wasm_write_u32(&ctx->stream, expr->const_.v128_bits[i], "f32_bits");
+        		wasm_write_u32(&ctx->stream, expr->const_.v128_bits[i], "f32_bits");
         	break;
+          }
         default:
           assert(0);
       }

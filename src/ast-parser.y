@@ -650,7 +650,33 @@ expr1 :
 	if ($2.size != lanes) {
 		wasm_ast_parser_error(&@1, lexer, parser, "length mismatch");
 	}
+
+
+    char* dst = (char*)expr->const_.v128_bits;
+    size_t width = 0;
+    
+    switch ($1) {   
+        case WASM_OPCODE_F32X4_CONST:
+        case WASM_OPCODE_I32X4_CONST:
+        //case WASM_OPCODE_U32X4_CONST:
+            width = 4;
+            break;
+        case WASM_OPCODE_I16X8_CONST:
+            width = 2;
+            break;
+         default:
+            assert(0);
+    }
+    
+    
+    for (unsigned i = 0; i < lanes; i++, dst += width) {
+        if ($2.data[i].type != lane_type) {
+            wasm_ast_parser_error(&@1, lexer, parser, "type mismatch");
+        }
+        memcpy(dst, &$2.data[i].f32_bits, width);
+    }
 	  
+	/*  
 	for (unsigned i = 0; i < lanes; i++) {
 		if ($2.data[i].type != lane_type) {
 			wasm_ast_parser_error(&@1, lexer, parser, "type mismatch");
@@ -663,7 +689,8 @@ expr1 :
 			default:
 				assert(0);
 		  	}	  	
-	}	
+	}
+	*/	
   }  
   | BLOCK labeling_opt block {
       WasmExpr* expr = wasm_new_block_expr(parser->allocator);

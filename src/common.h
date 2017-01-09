@@ -149,6 +149,7 @@ typedef enum WasmType {
   WASM_TYPE_F64 = -0x04,
   WASM_TYPE_F32X4 = -0x05,
   WASM_TYPE_I32X4 = -0x06,
+  WASM_TYPE_I16X8 = -0x07,
   //@TODO add the rest of the types
   WASM_TYPE_ANYFUNC = -0x10,
   WASM_TYPE_FUNC  = -0x20,
@@ -390,6 +391,8 @@ enum { WASM_USE_NATURAL_ALIGNMENT = 0xFFFFFFFF };
   V(F32X4, F32X4, F32X4, 0, 0xdc, F32X4_MUL, "f32x4.mul")               \
   V(F32X4, F32X4, ___,   0, 0xdd, F32X4_RCPPS,"f32x4.rcpps")            \
   V(F32X4, F32X4, ___,   0, 0xde, F32X4_RSQRTPS,"f32x4.rsqrtps")        \
+  V(I32X4, I32, ___, 4, 0xdf, I32X4_CONST, "i32x4.const")               \
+  V(I16X8, I32, ___, 8, 0xe0, I16X8_CONST, "i16x8.const")               \
 
 /*  
 #define WASM_FOREACH_SIMD_TYPE(V)                                       \
@@ -495,6 +498,27 @@ static WASM_INLINE WasmType get_lane_type(WasmType type) {
    return  g_wasm_simd_type_info[simd_type_to_ordinal(type)].lane_type;
 }
 */
+
+static WASM_INLINE WasmOpcode get_simd_const_opcode(WasmType type) {
+
+
+	uint32_t opcode = 0;
+	switch (type) {
+	case WASM_TYPE_F32X4:
+		opcode = WASM_OPCODE_F32X4_CONST;
+		break;
+	case WASM_TYPE_I32X4:
+		opcode = WASM_OPCODE_I32X4_CONST;
+		break;
+	case WASM_TYPE_I16X8:
+		opcode = WASM_OPCODE_I16X8_CONST;
+		break;
+	default:
+		assert (0);
+	}
+
+	return (WasmOpcode)opcode;
+}
 
 static WASM_INLINE const char* wasm_get_opcode_name(WasmOpcode opcode) {
   assert(opcode < WASM_NUM_OPCODES);
