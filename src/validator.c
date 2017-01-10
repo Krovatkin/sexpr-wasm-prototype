@@ -576,13 +576,22 @@ static void check_has_memory(Context* ctx,
 
 static void check_expr(Context* ctx, const WasmExpr* expr) {
   switch (expr->type) {
+    case WASM_EXPR_TYPE_SIMD_BUILD:
+    	//@TODO implement real checks
+    	break;
     case WASM_EXPR_TYPE_SIMD_CTOR:
-      assert(0);
+       //@ maybe redo the way consts are implemented
+    {
+    	size_t lanes = wasm_get_opcode_memory_size(expr->simd_ctor.opcode);
+    	for (uint i = 0; i < lanes; i++) {
+    		pop_type(ctx);
+    	}
+    	push_type(ctx, wasm_get_opcode_result_type(expr->simd_ctor.opcode));
       break;
+    }
     case WASM_EXPR_TYPE_BINARY:
       check_opcode2(ctx, &expr->loc, expr->binary.opcode);
       break;
-
     case WASM_EXPR_TYPE_BLOCK: {
       LabelNode node;
       push_label(ctx, &expr->loc, &node, LABEL_TYPE_BLOCK, &expr->block.sig);

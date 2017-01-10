@@ -201,7 +201,7 @@ static void on_read_binary_error(uint32_t offset, const char* error,
 %token CALL CALL_IMPORT CALL_INDIRECT RETURN
 %token GET_LOCAL SET_LOCAL TEE_LOCAL GET_GLOBAL SET_GLOBAL
 %token LOAD STORE OFFSET_EQ_NAT ALIGN_EQ_NAT
-%token CONST UNARY BINARY COMPARE CONVERT SELECT SIMD_CTOR
+%token CONST UNARY BINARY COMPARE CONVERT SELECT SIMD_CTOR SIMD_BUILD
 %token UNREACHABLE CURRENT_MEMORY GROW_MEMORY
 %token FUNC START TYPE PARAM RESULT LOCAL GLOBAL
 %token MODULE TABLE ELEM MEMORY DATA OFFSET IMPORT EXPORT
@@ -211,7 +211,7 @@ static void on_read_binary_error(uint32_t offset, const char* error,
 %token INPUT OUTPUT
 %token EOF 0 "EOF"
 
-%type<opcode> BINARY COMPARE CONVERT LOAD STORE UNARY SIMD_CTOR
+%type<opcode> BINARY COMPARE CONVERT LOAD STORE UNARY SIMD_CTOR SIMD_BUILD
 %type<text> ALIGN_EQ_NAT OFFSET_EQ_NAT TEXT VAR
 %type<type> SELECT
 %type<type> CONST VALUE_TYPE
@@ -587,6 +587,10 @@ plain_instr :
     }
   | GROW_MEMORY {
       $$ = wasm_new_grow_memory_expr(parser->allocator);
+    }
+  | SIMD_BUILD {
+      $$ = wasm_new_simd_ctor_expr(parser->allocator);
+      $$->simd_ctor.opcode = $1;
     }
 ;
 block_instr :

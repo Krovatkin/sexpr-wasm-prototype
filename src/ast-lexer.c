@@ -463,6 +463,7 @@ int wasm_ast_lexer_lex(WASM_AST_PARSER_STYPE* lval,
 	<i> "u16x8.add"            { OPCODE(U16X8_ADD); RETURN(BINARY); }
 	<i> "u8x16.add"            { OPCODE(U8X16_ADD); RETURN(BINARY); }
 	<i> "b8x16.add"            { OPCODE(B8X16_ADD); RETURN(BINARY); }
+	<i> "i32x4.build"          { OPCODE(I32X4_BUILD); RETURN(SIMD_BUILD); }
     <i> "select"              { RETURN(SELECT); }
     <i> "unreachable"         { RETURN(UNREACHABLE); }
     <i> "current_memory"      { RETURN(CURRENT_MEMORY); }

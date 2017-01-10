@@ -85,6 +85,7 @@ typedef enum WasmExprType {
   WASM_EXPR_TYPE_TEE_LOCAL,
   WASM_EXPR_TYPE_UNARY,
   WASM_EXPR_TYPE_SIMD_CTOR,
+  WASM_EXPR_TYPE_SIMD_BUILD,
   WASM_EXPR_TYPE_UNREACHABLE,
 } WasmExprType;
 
@@ -95,6 +96,11 @@ typedef struct WasmBlock {
   WasmBlockSignature sig;
   struct WasmExpr* first;
 } WasmBlock;
+
+typedef struct WasmSimdBuild {
+  WasmOpcode opcode;
+  struct WasmExpr* first;
+} WasmSimdBuild;
 
 typedef struct WasmExpr WasmExpr;
 struct WasmExpr {
@@ -108,6 +114,7 @@ struct WasmExpr {
     struct { WasmVarVector targets; WasmVar default_target; } br_table;
     struct { WasmVar var; } call, call_indirect;
     WasmConst const_;
+    WasmSimdBuild simd_build;
     struct { WasmVar var; } get_global, set_global;
     struct { WasmVar var; } get_local, set_local, tee_local;
     struct { WasmBlock true_; struct WasmExpr* false_; } if_;
