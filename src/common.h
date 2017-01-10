@@ -150,6 +150,13 @@ typedef enum WasmType {
   WASM_TYPE_F32X4 = -0x05,
   WASM_TYPE_I32X4 = -0x06,
   WASM_TYPE_I16X8 = -0x07,
+  WASM_TYPE_I8X16 = -0x08,
+  WASM_TYPE_B32X4 = -0xa,
+  WASM_TYPE_B16X8 = -0xb,
+  WASM_TYPE_B8X16 = -0xc,
+  WASM_TYPE_U32X4 = -0xd,
+  WASM_TYPE_U16X8 = -0xe,
+  WASM_TYPE_U8X16 = -0xf,
   //@TODO add the rest of the types
   WASM_TYPE_ANYFUNC = -0x10,
   WASM_TYPE_FUNC  = -0x20,
@@ -391,8 +398,25 @@ enum { WASM_USE_NATURAL_ALIGNMENT = 0xFFFFFFFF };
   V(F32X4, F32X4, F32X4, 0, 0xdc, F32X4_MUL, "f32x4.mul")               \
   V(F32X4, F32X4, ___,   0, 0xdd, F32X4_RCPPS,"f32x4.rcpps")            \
   V(F32X4, F32X4, ___,   0, 0xde, F32X4_RSQRTPS,"f32x4.rsqrtps")        \
-  V(I32X4, I32, ___, 4, 0xdf, I32X4_CONST, "i32x4.const")               \
-  V(I16X8, I32, ___, 8, 0xe0, I16X8_CONST, "i16x8.const")               \
+  V(I32X4, I32, ___, 4,  0xdf, I32X4_CONST, "i32x4.const")               \
+  V(I16X8, I32, ___, 8,  0xe0, I16X8_CONST, "i16x8.const")               \
+  V(I8X16, I32, ___, 16, 0xe1, I8X16_CONST, "i8x16.const")               \
+  V(B32X4, I32, ___, 4,  0xe2, B32X4_CONST, "b32x4.const")               \
+  V(B16X8, I32, ___, 8,  0xe3, B16X8_CONST, "b16x8.const")               \
+  V(B8X16, I32, ___, 16, 0xe4, B8X16_CONST, "b8x16.const")               \
+  V(U32X4, I32, ___, 4,  0xe5, U32X4_CONST, "u32x4.const")               \
+  V(U16X8, I32, ___, 8,  0xe6, U16X8_CONST, "u16x8.const")               \
+  V(U8X16, I32, ___, 16, 0xe7, U8X16_CONST, "u8x16.const")               \
+  V(I32X4, I32X4, I32X4, 0,  0xe8, I32X4_ADD, "i32x4.add")               \
+  V(I16X8, I16X8, I16X8, 0,  0xe9, I16X8_ADD, "i16x8.add")               \
+  V(I8X16, I8X16, I8X16, 0,  0xea, I8X16_ADD, "i8x16.add")               \
+  V(B32X4, B32X4, B32X4, 0,  0xeb, B32X4_ADD, "b32x4.add")               \
+  V(B16X8, B16X8, B16X8, 0,  0xec, B16X8_ADD, "b16x8.add")               \
+  V(U32X4, U32X4, U32X4, 0,  0xed, U32X4_ADD, "u32x4.add")               \
+  V(U16X8, U16X8, U16X8, 0,  0xee, U16X8_ADD, "u16x8.add")               \
+  V(U8X16, U8X16, U8X16, 0,  0xef, U8X16_ADD, "u8x16.add")               \
+  V(B8X16, B8X16, B8X16, 0,  0xf0, B8X16_ADD, "b8x16.add")               \
+
 
 /*  
 #define WASM_FOREACH_SIMD_TYPE(V)                                       \
@@ -512,6 +536,27 @@ static WASM_INLINE WasmOpcode get_simd_const_opcode(WasmType type) {
 		break;
 	case WASM_TYPE_I16X8:
 		opcode = WASM_OPCODE_I16X8_CONST;
+		break;
+	case WASM_TYPE_I8X16:
+		opcode = WASM_OPCODE_I8X16_CONST;
+		break;
+	case WASM_TYPE_B32X4:
+		opcode = WASM_OPCODE_B32X4_CONST;
+		break;
+	case WASM_TYPE_B16X8:
+		opcode = WASM_OPCODE_B16X8_CONST;
+		break;
+	case WASM_TYPE_B8X16:
+		opcode = WASM_OPCODE_B8X16_CONST;
+		break;
+	case WASM_TYPE_U32X4:
+		opcode = WASM_OPCODE_U32X4_CONST;
+		break;
+	case WASM_TYPE_U16X8:
+		opcode = WASM_OPCODE_U16X8_CONST;
+		break;
+	case WASM_TYPE_U8X16:
+		opcode = WASM_OPCODE_U8X16_CONST;
 		break;
 	default:
 		assert (0);

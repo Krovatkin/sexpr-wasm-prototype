@@ -291,6 +291,13 @@ int wasm_ast_lexer_lex(WASM_AST_PARSER_STYPE* lval,
     <i> "i64.const"           { TYPE(I64); RETURN(CONST); }
     <i> "i32x4.const"         { OPCODE(I32X4_CONST); RETURN(SIMD_CTOR); }
     <i> "i16x8.const"         { OPCODE(I16X8_CONST); RETURN(SIMD_CTOR); }
+	<i> "i8x16.const"         { OPCODE(I8X16_CONST); RETURN(SIMD_CTOR); }
+	<i> "b32x4.const"         { OPCODE(B32X4_CONST); RETURN(SIMD_CTOR); }
+	<i> "b16x8.const"         { OPCODE(B16X8_CONST); RETURN(SIMD_CTOR); }
+    <i> "b8x16.const"         { OPCODE(B8X16_CONST); RETURN(SIMD_CTOR); }
+	<i> "u32x4.const"         { OPCODE(U32X4_CONST); RETURN(SIMD_CTOR); }
+	<i> "u16x8.const"         { OPCODE(U16X8_CONST); RETURN(SIMD_CTOR); }
+	<i> "u8x16.const"         { OPCODE(U8X16_CONST); RETURN(SIMD_CTOR); }
     <i> "f32.const"           { TYPE(F32); RETURN(CONST); }
     <i> "f64.const"           { TYPE(F64); RETURN(CONST); }
     <i> "f32x4.const"         { OPCODE(F32X4_CONST); RETURN(SIMD_CTOR); }
@@ -447,6 +454,15 @@ int wasm_ast_lexer_lex(WASM_AST_PARSER_STYPE* lval,
 	<i> "f32x4.mul"            { OPCODE(F32X4_MUL); RETURN(BINARY); }
 	<i> "f32x4.rcpps"            { OPCODE(F32X4_RCPPS); RETURN(UNARY); }
 	<i> "f32x4.rsqrtps"            { OPCODE(F32X4_RSQRTPS); RETURN(UNARY); }
+	<i> "i32x4.add"            { OPCODE(I32X4_ADD); RETURN(BINARY); }
+	<i> "i16x8.add"            { OPCODE(I16X8_ADD); RETURN(BINARY); }
+	<i> "i8x16.add"            { OPCODE(I8X16_ADD); RETURN(BINARY); }
+	<i> "b32x4.add"            { OPCODE(B32X4_ADD); RETURN(BINARY); }
+	<i> "b16x8.add"            { OPCODE(B16X8_ADD); RETURN(BINARY); }
+	<i> "u32x4.add"            { OPCODE(U32X4_ADD); RETURN(BINARY); }
+	<i> "u16x8.add"            { OPCODE(U16X8_ADD); RETURN(BINARY); }
+	<i> "u8x16.add"            { OPCODE(U8X16_ADD); RETURN(BINARY); }
+	<i> "b8x16.add"            { OPCODE(B8X16_ADD); RETURN(BINARY); }
     <i> "select"              { RETURN(SELECT); }
     <i> "unreachable"         { RETURN(UNREACHABLE); }
     <i> "current_memory"      { RETURN(CURRENT_MEMORY); }

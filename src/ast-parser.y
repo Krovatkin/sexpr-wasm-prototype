@@ -658,11 +658,19 @@ expr1 :
     switch ($1) {   
         case WASM_OPCODE_F32X4_CONST:
         case WASM_OPCODE_I32X4_CONST:
-        //case WASM_OPCODE_U32X4_CONST:
+        case WASM_OPCODE_U32X4_CONST:
+        case WASM_OPCODE_B32X4_CONST:
             width = 4;
             break;
         case WASM_OPCODE_I16X8_CONST:
+        case WASM_OPCODE_U16X8_CONST:
+        case WASM_OPCODE_B16X8_CONST:
             width = 2;
+            break;
+        case WASM_OPCODE_I8X16_CONST:
+        case WASM_OPCODE_U8X16_CONST:
+        case WASM_OPCODE_B8X16_CONST:
+            width = 1;
             break;
          default:
             assert(0);
