@@ -84,7 +84,6 @@ typedef enum WasmExprType {
   WASM_EXPR_TYPE_STORE,
   WASM_EXPR_TYPE_TEE_LOCAL,
   WASM_EXPR_TYPE_UNARY,
-  WASM_EXPR_TYPE_SIMD_CTOR,
   WASM_EXPR_TYPE_SIMD_BUILD,
   WASM_EXPR_TYPE_UNREACHABLE,
 } WasmExprType;
@@ -97,24 +96,18 @@ typedef struct WasmBlock {
   struct WasmExpr* first;
 } WasmBlock;
 
-typedef struct WasmSimdBuild {
-  WasmOpcode opcode;
-  struct WasmExpr* first;
-} WasmSimdBuild;
-
 typedef struct WasmExpr WasmExpr;
 struct WasmExpr {
   WasmLocation loc;
   WasmExprType type;
   WasmExpr* next;
   union {
-    struct { WasmOpcode opcode; } binary, compare, convert, unary, simd_ctor;
+    struct { WasmOpcode opcode; } binary, compare, convert, unary, simd_build;
     WasmBlock block, loop;
     struct { WasmVar var; } br, br_if;
     struct { WasmVarVector targets; WasmVar default_target; } br_table;
     struct { WasmVar var; } call, call_indirect;
     WasmConst const_;
-    WasmSimdBuild simd_build;
     struct { WasmVar var; } get_global, set_global;
     struct { WasmVar var; } get_local, set_local, tee_local;
     struct { WasmBlock true_; struct WasmExpr* false_; } if_;
@@ -405,7 +398,6 @@ typedef struct WasmExprVisitor {
   WasmResult (*on_unary_expr)(WasmExpr*, void* user_data);
   WasmResult (*on_unreachable_expr)(WasmExpr*, void* user_data);
   WasmResult (*on_simd_build_expr)(WasmExpr*, void* user_data);
-  WasmResult (*on_simd_ctor_expr)(WasmExpr*, void* user_data);
 } WasmExprVisitor;
 
 WASM_EXTERN_C_BEGIN
@@ -444,7 +436,7 @@ WasmExpr* wasm_new_store_expr(struct WasmAllocator*);
 WasmExpr* wasm_new_tee_local_expr(struct WasmAllocator*);
 WasmExpr* wasm_new_unary_expr(struct WasmAllocator*);
 WasmExpr* wasm_new_unreachable_expr(struct WasmAllocator*);
-WasmExpr* wasm_new_simd_ctor_expr(struct WasmAllocator*);
+WasmExpr* wasm_new_simd_build_expr(struct WasmAllocator*);
 
 
 /* destruction functions. not needed unless you're creating your own AST

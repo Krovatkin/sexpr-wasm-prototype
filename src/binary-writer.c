@@ -290,9 +290,7 @@ static void write_expr(Context* ctx,
                        const WasmExpr* expr) {
   switch (expr->type) {
     case WASM_EXPR_TYPE_SIMD_BUILD:
-        assert(0); //@TODO
-    case WASM_EXPR_TYPE_SIMD_CTOR:
-        wasm_write_opcode(&ctx->stream, expr->simd_ctor.opcode);
+        wasm_write_opcode(&ctx->stream, expr->simd_build.opcode);
         break;
     case WASM_EXPR_TYPE_BINARY:
       wasm_write_opcode(&ctx->stream, expr->binary.opcode);

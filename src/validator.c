@@ -577,13 +577,9 @@ static void check_has_memory(Context* ctx,
 static void check_expr(Context* ctx, const WasmExpr* expr) {
   switch (expr->type) {
     case WASM_EXPR_TYPE_SIMD_BUILD:
-        //@TODO implement real checks
-        break;
-    case WASM_EXPR_TYPE_SIMD_CTOR:
-       //@ maybe redo the way consts are implemented
     {
-        size_t lanes = wasm_get_opcode_memory_size(expr->simd_ctor.opcode);
-        WasmType lane_type = wasm_get_opcode_param_type_1(expr->simd_ctor.opcode);
+        size_t lanes = wasm_get_opcode_memory_size(expr->simd_build.opcode);
+        WasmType lane_type = wasm_get_opcode_param_type_1(expr->simd_build.opcode);
         for (uint i = 0; i < lanes; i++) {
             if (pop_type(ctx) != lane_type)
             {
@@ -591,7 +587,7 @@ static void check_expr(Context* ctx, const WasmExpr* expr) {
                 print_error(ctx, &expr->loc, "type mismatch");
             }
         }
-        push_type(ctx, wasm_get_opcode_result_type(expr->simd_ctor.opcode));
+        push_type(ctx, wasm_get_opcode_result_type(expr->simd_build.opcode));
       break;
     }
     case WASM_EXPR_TYPE_BINARY:

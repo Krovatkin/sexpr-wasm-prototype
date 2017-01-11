@@ -201,7 +201,7 @@ static void on_read_binary_error(uint32_t offset, const char* error,
 %token CALL CALL_IMPORT CALL_INDIRECT RETURN
 %token GET_LOCAL SET_LOCAL TEE_LOCAL GET_GLOBAL SET_GLOBAL
 %token LOAD STORE OFFSET_EQ_NAT ALIGN_EQ_NAT
-%token CONST UNARY BINARY COMPARE CONVERT SELECT SIMD_CTOR SIMD_BUILD
+%token CONST UNARY BINARY COMPARE CONVERT SELECT SIMD_BUILD SIMD_CONST
 %token UNREACHABLE CURRENT_MEMORY GROW_MEMORY
 %token FUNC START TYPE PARAM RESULT LOCAL GLOBAL
 %token MODULE TABLE ELEM MEMORY DATA OFFSET IMPORT EXPORT
@@ -211,7 +211,7 @@ static void on_read_binary_error(uint32_t offset, const char* error,
 %token INPUT OUTPUT
 %token EOF 0 "EOF"
 
-%type<opcode> BINARY COMPARE CONVERT LOAD STORE UNARY SIMD_CTOR SIMD_BUILD
+%type<opcode> BINARY COMPARE CONVERT LOAD STORE UNARY SIMD_BUILD SIMD_CONST
 %type<text> ALIGN_EQ_NAT OFFSET_EQ_NAT TEXT VAR
 %type<type> SELECT
 %type<type> CONST VALUE_TYPE
@@ -589,8 +589,8 @@ plain_instr :
       $$ = wasm_new_grow_memory_expr(parser->allocator);
     }
   | SIMD_BUILD {
-      $$ = wasm_new_simd_ctor_expr(parser->allocator);
-      $$->simd_ctor.opcode = $1;
+      $$ = wasm_new_simd_build_expr(parser->allocator);
+      $$->simd_build.opcode = $1;
     }
 ;
 block_instr :
@@ -637,11 +637,8 @@ expr1 :
     plain_instr expr_list {
       $$ = join_exprs2(&@1, &$2, $1);
     }
-  | SIMD_CTOR const_list {
-  
-    //WasmExpr* expr = wasm_new_simd_ctor_expr(parser->allocator);
-    //expr->simd_ctor.opcode = WASM_OPCODE_F32X4_CONST;
-      
+  | SIMD_CONST const_list {
+        
     WasmExpr* expr = wasm_new_const_expr(parser->allocator);
     $$ = join_exprs1(&@1, expr);
     
@@ -654,7 +651,6 @@ expr1 :
 	if ($2.size != lanes) {
 		wasm_ast_parser_error(&@1, lexer, parser, "length mismatch");
 	}
-
 
     char* dst = (char*)expr->const_.v128_bits;
     size_t width = 0;
@@ -679,30 +675,16 @@ expr1 :
          default:
             assert(0);
     }
-    
-    
+       
     for (unsigned i = 0; i < lanes; i++, dst += width) {
         if ($2.data[i].type != lane_type) {
             wasm_ast_parser_error(&@1, lexer, parser, "type mismatch");
         }
         memcpy(dst, &$2.data[i].f32_bits, width);
     }
+    
+    //@TODO warn user if a literal doesn't fit into declared type
 	  
-	/*  
-	for (unsigned i = 0; i < lanes; i++) {
-		if ($2.data[i].type != lane_type) {
-			wasm_ast_parser_error(&@1, lexer, parser, "type mismatch");
-		} 
-	  	
-		switch ($1) {	
-			case WASM_OPCODE_F32X4_CONST:
-				expr->const_.v128_bits[i] = $2.data[i].f32_bits;
-				break;
-			default:
-				assert(0);
-		  	}	  	
-	}
-	*/	
   }  
   | BLOCK labeling_opt block {
       WasmExpr* expr = wasm_new_block_expr(parser->allocator);

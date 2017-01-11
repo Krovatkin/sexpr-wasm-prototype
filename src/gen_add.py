@@ -17,12 +17,12 @@ types = [ "i32x4" , "i16x8", "i8x16", "b32x4", "b16x8", "b8x16", "u32x4", "u16x8
 
 start_opcode = int('0xf0',16)
 size = 4 
-#<i> \"i16x8.const\"         { OPCODE(I16X8_CONST); RETURN(SIMD_CTOR); }
+#<i> \"i16x8.const\"         { OPCODE(I16X8_CONST); RETURN(SIMD_BUILD); }
 
 for t in types:
     start_opcode += 1    
     #print("V({}, {}, {}, {},  {}, {}_ADD, \"{}.add\")               \\".format(t.upper(), t.upper(), t.upper(), 0, hex(start_opcode), t.upper(), t))
-    #print("<i> \"{}.const\"         {{ OPCODE({}_CONST); RETURN(SIMD_CTOR); }}".format(t, t.upper()))
+    #print("<i> \"{}.const\"         {{ OPCODE({}_CONST); RETURN(SIMD_BUILD); }}".format(t, t.upper()))
     #print("<i> \"{}.add\"            {{ OPCODE({}_ADD); RETURN(BINARY); }}".format(t, t.upper()))
     #print ("case WASM_TYPE_"+t.upper()+":")
     #print ("\topcode = WASM_OPCODE_"+t.upper()+"_CONST;")

@@ -289,18 +289,18 @@ int wasm_ast_lexer_lex(WASM_AST_PARSER_STYPE* lval,
     <i> "align=" nat          { TEXT_AT(6); RETURN(ALIGN_EQ_NAT); }
     <i> "i32.const"           { TYPE(I32); RETURN(CONST); }
     <i> "i64.const"           { TYPE(I64); RETURN(CONST); }
-    <i> "i32x4.const"         { OPCODE(I32X4_CONST); RETURN(SIMD_CTOR); }
-    <i> "i16x8.const"         { OPCODE(I16X8_CONST); RETURN(SIMD_CTOR); }
-    <i> "i8x16.const"         { OPCODE(I8X16_CONST); RETURN(SIMD_CTOR); }
-    <i> "b32x4.const"         { OPCODE(B32X4_CONST); RETURN(SIMD_CTOR); }
-    <i> "b16x8.const"         { OPCODE(B16X8_CONST); RETURN(SIMD_CTOR); }
-    <i> "b8x16.const"         { OPCODE(B8X16_CONST); RETURN(SIMD_CTOR); }
-    <i> "u32x4.const"         { OPCODE(U32X4_CONST); RETURN(SIMD_CTOR); }
-    <i> "u16x8.const"         { OPCODE(U16X8_CONST); RETURN(SIMD_CTOR); }
-    <i> "u8x16.const"         { OPCODE(U8X16_CONST); RETURN(SIMD_CTOR); }
+    <i> "i32x4.const"         { OPCODE(I32X4_CONST); RETURN(SIMD_CONST); }
+    <i> "i16x8.const"         { OPCODE(I16X8_CONST); RETURN(SIMD_CONST); }
+    <i> "i8x16.const"         { OPCODE(I8X16_CONST); RETURN(SIMD_CONST); }
+    <i> "b32x4.const"         { OPCODE(B32X4_CONST); RETURN(SIMD_CONST); }
+    <i> "b16x8.const"         { OPCODE(B16X8_CONST); RETURN(SIMD_CONST); }
+    <i> "b8x16.const"         { OPCODE(B8X16_CONST); RETURN(SIMD_CONST); }
+    <i> "u32x4.const"         { OPCODE(U32X4_CONST); RETURN(SIMD_CONST); }
+    <i> "u16x8.const"         { OPCODE(U16X8_CONST); RETURN(SIMD_CONST); }
+    <i> "u8x16.const"         { OPCODE(U8X16_CONST); RETURN(SIMD_CONST); }
     <i> "f32.const"           { TYPE(F32); RETURN(CONST); }
     <i> "f64.const"           { TYPE(F64); RETURN(CONST); }
-    <i> "f32x4.const"         { OPCODE(F32X4_CONST); RETURN(SIMD_CTOR); }
+    <i> "f32x4.const"         { OPCODE(F32X4_CONST); RETURN(SIMD_CONST); }
     <i> "i32.eqz"             { OPCODE(I32_EQZ); RETURN(CONVERT); }
     <i> "i64.eqz"             { OPCODE(I64_EQZ); RETURN(CONVERT); }
     <i> "i32.clz"             { OPCODE(I32_CLZ); RETURN(UNARY); }

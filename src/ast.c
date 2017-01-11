@@ -230,7 +230,6 @@ WasmFuncType* wasm_append_implicit_func_type(struct WasmAllocator* allocator,
   V(WASM_EXPR_TYPE_STORE, store, store)                         \
   V(WASM_EXPR_TYPE_TEE_LOCAL, tee_local, tee_local)             \
   V(WASM_EXPR_TYPE_UNARY, unary, unary)                         \
-  V(WASM_EXPR_TYPE_SIMD_CTOR, simd_ctor, simd_ctor)             \
   V(WASM_EXPR_TYPE_SIMD_BUILD, simd_build, simd_build)
 
 #define DEFINE_NEW_EXPR(type_, name, member)                    \
@@ -356,7 +355,6 @@ void wasm_destroy_expr(WasmAllocator* allocator, WasmExpr* expr) {
     case WASM_EXPR_TYPE_STORE:
     case WASM_EXPR_TYPE_UNARY:
     case WASM_EXPR_TYPE_UNREACHABLE:
-    case WASM_EXPR_TYPE_SIMD_CTOR:
     case WASM_EXPR_TYPE_SIMD_BUILD:
       break;
   }
@@ -728,8 +726,6 @@ static WasmResult visit_expr(WasmExpr* expr, WasmExprVisitor* visitor) {
     case WASM_EXPR_TYPE_UNREACHABLE:
       CALLBACK(on_unreachable_expr);
       break;
-    case WASM_EXPR_TYPE_SIMD_CTOR:
-        CALLBACK(on_simd_ctor_expr);
         break;
     case WASM_EXPR_TYPE_SIMD_BUILD:
         CALLBACK(on_simd_build_expr);
