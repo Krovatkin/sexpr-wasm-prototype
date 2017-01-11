@@ -362,7 +362,7 @@ enum { WASM_USE_NATURAL_ALIGNMENT = 0xFFFFFFFF };
   V(F64, I32, ___, 0, 0xb7, F64_CONVERT_S_I32, "f64.convert_s/i32")     \
   V(F64, I32, ___, 0, 0xb8, F64_CONVERT_U_I32, "f64.convert_u/i32")     \
   V(F64, I64, ___, 0, 0xb9, F64_CONVERT_S_I64, "f64.convert_s/i64")     \
-  V(F64, I64, ___, 0, 0xba, F64_CONVERT_U_I64, "f6WASM_FOREACH_OPCODE4.convert_u/i64")     \
+  V(F64, I64, ___, 0, 0xba, F64_CONVERT_U_I64, "f64.convert_u/i64")     \
   V(F64, F32, ___, 0, 0xbb, F64_PROMOTE_F32, "f64.promote/f32")         \
   V(I32, F32, ___, 0, 0xbc, I32_REINTERPRET_F32, "i32.reinterpret/f32") \
   V(I64, F64, ___, 0, 0xbd, I64_REINTERPRET_F64, "i64.reinterpret/f64") \
@@ -425,14 +425,6 @@ enum { WASM_USE_NATURAL_ALIGNMENT = 0xFFFFFFFF };
   V(U32X4, I32, ___, 4,  0xf7, U32X4_BUILD, "u32x4.build")               \
   V(U16X8, I32, ___, 8,  0xf8, U16X8_BUILD, "u16x8.build")               \
   V(U8X16, I32, ___, 16,  0xf9, U8X16_BUILD, "u8x16.build")
-
-//  V(F32X4, F32, ___, 0,  0xfa, F32X4_BUILD, "f32x4.build")
-
-
-/*  
-#define WASM_FOREACH_SIMD_TYPE(V)                                       \
-  V(I32, 4, "f32x4")                                                    //@TODO add limits?? to make sure that a value fits into a lane
-*/ 
  
 typedef enum WasmOpcode {
 #define V(rtype, type1, type2, mem_size, code, NAME, text) \
@@ -449,14 +441,6 @@ typedef struct WasmOpcodeInfo {
   WasmType param2_type;
   int memory_size;
 } WasmOpcodeInfo;
-
-/*
-typedef struct WasmSimdTypeInfo {
-    WasmType lane_type;
-    unsigned lanes;
-    const char* name;
-} WasmSimdTypeInfo;
-*/
 
 typedef enum WasmLiteralType {
   WASM_LITERAL_TYPE_INT,
@@ -508,34 +492,8 @@ void wasm_init_stdio();
 
 /* opcode info */
 extern WasmOpcodeInfo g_wasm_opcode_info[];
-//extern WasmSimdTypeInfo g_wasm_simd_type_info[];
-
-/*
-static unsigned number_of_trailing_zeros(unsigned n) {
-
-    //@TODO make it faster
-    unsigned index = 0;
-    while (!(1<<index++ & n));
-    
-    return index;
-}
-
-static WASM_INLINE unsigned simd_type_to_ordinal (WasmType type) {
-    assert (type >= WASM_TYPE_F32X4);
-    return number_of_trailing_zeros(type) - number_of_trailing_zeros (WASM_TYPE_F32X4);
-}
-
-static WASM_INLINE unsigned get_number_lanes(WasmType type) {
-    return g_wasm_simd_type_info[simd_type_to_ordinal(type)].lanes;
-}
-
-static WASM_INLINE WasmType get_lane_type(WasmType type) {
-   return  g_wasm_simd_type_info[simd_type_to_ordinal(type)].lane_type;
-}
-*/
 
 static WASM_INLINE WasmOpcode get_simd_const_opcode(WasmType type) {
-
 
     uint32_t opcode = 0;
     switch (type) {

@@ -381,7 +381,7 @@ static void write_expr(Context* ctx,
         case WASM_TYPE_U8X16:
             wasm_write_opcode(&ctx->stream, get_simd_const_opcode(expr->const_.type));
             for (unsigned i = 0; i < SIMD_VEC_SIZE_IN_DBWORDS; i++)
-                wasm_write_u32(&ctx->stream, expr->const_.v128_bits[i], "f32_bits");
+                wasm_write_u32(&ctx->stream, expr->const_.v128_bits[i], "v128_bits");
             break;
           }
         default:

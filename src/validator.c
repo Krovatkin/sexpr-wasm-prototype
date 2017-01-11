@@ -581,9 +581,7 @@ static void check_expr(Context* ctx, const WasmExpr* expr) {
         size_t lanes = wasm_get_opcode_memory_size(expr->simd_build.opcode);
         WasmType lane_type = wasm_get_opcode_param_type_1(expr->simd_build.opcode);
         for (uint i = 0; i < lanes; i++) {
-            if (pop_type(ctx) != lane_type)
-            {
-                //
+            if (pop_type(ctx) != lane_type) {
                 print_error(ctx, &expr->loc, "type mismatch");
             }
         }
