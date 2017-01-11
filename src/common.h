@@ -537,43 +537,43 @@ static WASM_INLINE WasmType get_lane_type(WasmType type) {
 static WASM_INLINE WasmOpcode get_simd_const_opcode(WasmType type) {
 
 
-	uint32_t opcode = 0;
-	switch (type) {
-	case WASM_TYPE_F32X4:
-		opcode = WASM_OPCODE_F32X4_CONST;
-		break;
-	case WASM_TYPE_I32X4:
-		opcode = WASM_OPCODE_I32X4_CONST;
-		break;
-	case WASM_TYPE_I16X8:
-		opcode = WASM_OPCODE_I16X8_CONST;
-		break;
-	case WASM_TYPE_I8X16:
-		opcode = WASM_OPCODE_I8X16_CONST;
-		break;
-	case WASM_TYPE_B32X4:
-		opcode = WASM_OPCODE_B32X4_CONST;
-		break;
-	case WASM_TYPE_B16X8:
-		opcode = WASM_OPCODE_B16X8_CONST;
-		break;
-	case WASM_TYPE_B8X16:
-		opcode = WASM_OPCODE_B8X16_CONST;
-		break;
-	case WASM_TYPE_U32X4:
-		opcode = WASM_OPCODE_U32X4_CONST;
-		break;
-	case WASM_TYPE_U16X8:
-		opcode = WASM_OPCODE_U16X8_CONST;
-		break;
-	case WASM_TYPE_U8X16:
-		opcode = WASM_OPCODE_U8X16_CONST;
-		break;
-	default:
-		assert (0);
-	}
+    uint32_t opcode = 0;
+    switch (type) {
+    case WASM_TYPE_F32X4:
+        opcode = WASM_OPCODE_F32X4_CONST;
+        break;
+    case WASM_TYPE_I32X4:
+        opcode = WASM_OPCODE_I32X4_CONST;
+        break;
+    case WASM_TYPE_I16X8:
+        opcode = WASM_OPCODE_I16X8_CONST;
+        break;
+    case WASM_TYPE_I8X16:
+        opcode = WASM_OPCODE_I8X16_CONST;
+        break;
+    case WASM_TYPE_B32X4:
+        opcode = WASM_OPCODE_B32X4_CONST;
+        break;
+    case WASM_TYPE_B16X8:
+        opcode = WASM_OPCODE_B16X8_CONST;
+        break;
+    case WASM_TYPE_B8X16:
+        opcode = WASM_OPCODE_B8X16_CONST;
+        break;
+    case WASM_TYPE_U32X4:
+        opcode = WASM_OPCODE_U32X4_CONST;
+        break;
+    case WASM_TYPE_U16X8:
+        opcode = WASM_OPCODE_U16X8_CONST;
+        break;
+    case WASM_TYPE_U8X16:
+        opcode = WASM_OPCODE_U8X16_CONST;
+        break;
+    default:
+        assert (0);
+    }
 
-	return (WasmOpcode)opcode;
+    return (WasmOpcode)opcode;
 }
 
 static WASM_INLINE const char* wasm_get_opcode_name(WasmOpcode opcode) {
