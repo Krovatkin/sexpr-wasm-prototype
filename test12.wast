@@ -4,6 +4,6 @@
 ;;-------------------------------------------------------------------------------------------------------
 (module
   (func (export "popcount") (local i32 i32)
-    (drop (i32x4.build (i32.const 0) (get_local 0) (get_local 1) (i32.const 0)))
+    (drop (i32x4.build (f32.const -0.0) (get_local 0) (get_local 1) (f32.const -0.0)))
   )
 ) 

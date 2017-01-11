@@ -416,7 +416,7 @@ enum { WASM_USE_NATURAL_ALIGNMENT = 0xFFFFFFFF };
   V(U16X8, U16X8, U16X8, 0,  0xee, U16X8_ADD, "u16x8.add")               \
   V(U8X16, U8X16, U8X16, 0,  0xef, U8X16_ADD, "u8x16.add")               \
   V(B8X16, B8X16, B8X16, 0,  0xf0, B8X16_ADD, "b8x16.add")               \
-  V(I32X4, ___, ___, 4,  0xf1, I32X4_BUILD, "i4x32.build")               \
+  V(I32X4, I32, ___, 4,  0xf1, I32X4_BUILD, "i4x32.build")               \
 
 
 /*  
