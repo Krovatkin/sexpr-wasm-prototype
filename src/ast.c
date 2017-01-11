@@ -729,10 +729,10 @@ static WasmResult visit_expr(WasmExpr* expr, WasmExprVisitor* visitor) {
       CALLBACK(on_unreachable_expr);
       break;
     case WASM_EXPR_TYPE_SIMD_CTOR:
-        printf("on_simd_const");
+    	CALLBACK(on_simd_ctor_expr);
         break;
     case WASM_EXPR_TYPE_SIMD_BUILD:
-        printf("on_simd_build");
+    	CALLBACK(on_simd_build_expr);
         break;
   }
 

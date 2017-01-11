@@ -404,6 +404,8 @@ typedef struct WasmExprVisitor {
   WasmResult (*on_tee_local_expr)(WasmExpr*, void* user_data);
   WasmResult (*on_unary_expr)(WasmExpr*, void* user_data);
   WasmResult (*on_unreachable_expr)(WasmExpr*, void* user_data);
+  WasmResult (*on_simd_build_expr)(WasmExpr*, void* user_data);
+  WasmResult (*on_simd_ctor_expr)(WasmExpr*, void* user_data);
 } WasmExprVisitor;
 
 WASM_EXTERN_C_BEGIN

@@ -464,6 +464,17 @@ int wasm_ast_lexer_lex(WASM_AST_PARSER_STYPE* lval,
 	<i> "u8x16.add"            { OPCODE(U8X16_ADD); RETURN(BINARY); }
 	<i> "b8x16.add"            { OPCODE(B8X16_ADD); RETURN(BINARY); }
 	<i> "i32x4.build"          { OPCODE(I32X4_BUILD); RETURN(SIMD_BUILD); }
+	<i> "i16x8.build"            { OPCODE(I16X8_BUILD); RETURN(SIMD_BUILD); }
+	<i> "i8x16.build"            { OPCODE(I8X16_BUILD); RETURN(SIMD_BUILD); }
+	<i> "b32x4.build"            { OPCODE(B32X4_BUILD); RETURN(SIMD_BUILD); }
+	<i> "b16x8.build"            { OPCODE(B16X8_BUILD); RETURN(SIMD_BUILD); }
+	<i> "b8x16.build"            { OPCODE(B8X16_BUILD); RETURN(SIMD_BUILD); }
+	<i> "u32x4.build"            { OPCODE(U32X4_BUILD); RETURN(SIMD_BUILD); }
+	<i> "u16x8.build"            { OPCODE(U16X8_BUILD); RETURN(SIMD_BUILD); }
+	<i> "u8x16.build"            { OPCODE(U8X16_BUILD); RETURN(SIMD_BUILD); }
+
+
+
     <i> "select"              { RETURN(SELECT); }
     <i> "unreachable"         { RETURN(UNREACHABLE); }
     <i> "current_memory"      { RETURN(CURRENT_MEMORY); }

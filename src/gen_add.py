@@ -15,8 +15,8 @@
 
 types = [ "i32x4" , "i16x8", "i8x16", "b32x4", "b16x8", "b8x16", "u32x4", "u16x8", "u8x16"]
 
-start_opcode = int('0xe7',16)
-
+start_opcode = int('0xf0',16)
+size = 4 
 #<i> \"i16x8.const\"         { OPCODE(I16X8_CONST); RETURN(SIMD_CTOR); }
 
 for t in types:
@@ -27,4 +27,10 @@ for t in types:
     #print ("case WASM_TYPE_"+t.upper()+":")
     #print ("\topcode = WASM_OPCODE_"+t.upper()+"_CONST;")
     #print ("\tbreak;")
-    
+    print("V({}, {}, {}, {},  {}, {}_BUILD, \"{}.build\")               \\".format(t.upper(), "I32", "___", size, hex(start_opcode), t.upper(), t))
+    if size == 16:
+       size = 4
+    else:
+       size *= 2
+
+    #print("<i> \"{}.build\"            {{ OPCODE({}_BUILD); RETURN(SIMD_BUILD); }}".format(t, t.upper()))
