@@ -645,12 +645,12 @@ expr1 :
     //set up a SIMD const
     expr->const_.loc = @1;
     expr->const_.type = wasm_get_opcode_result_type($1);
-	size_t lanes = wasm_get_opcode_memory_size($1);
-	WasmType lane_type = wasm_get_opcode_param_type_1($1);
-	  
-	if ($2.size != lanes) {
-		wasm_ast_parser_error(&@1, lexer, parser, "length mismatch");
-	}
+    size_t lanes = wasm_get_opcode_memory_size($1);
+    WasmType lane_type = wasm_get_opcode_param_type_1($1);
+
+    if ($2.size != lanes) {
+        wasm_ast_parser_error(&@1, lexer, parser, "length mismatch");
+    }
 
     char* dst = (char*)expr->const_.v128_bits;
     size_t width = 0;

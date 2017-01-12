@@ -163,7 +163,7 @@ typedef enum WasmType {
   WASM_TYPE_VOID  = -0x40,
 
   WASM_TYPE____ = WASM_TYPE_VOID, /* convenient for the opcode table below */
-  WASM_TYPE_ANY = 0, /* Not actually specified, but useful for type-chWASM_FOREACH_OPCODEecking */
+  WASM_TYPE_ANY = 0, /* Not actually specified, but useful for type-checking */
 } WasmType;
 
 /* matches binary format, do not change */
