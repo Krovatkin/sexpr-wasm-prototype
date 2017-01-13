@@ -410,7 +410,6 @@ enum { WASM_USE_NATURAL_ALIGNMENT = 0xFFFFFFFF };
   V(I32X4, I32X4, I32X4, 0,  0xe8, I32X4_ADD, "i32x4.add")               \
   V(I16X8, I16X8, I16X8, 0,  0xe9, I16X8_ADD, "i16x8.add")               \
   V(I8X16, I8X16, I8X16, 0,  0xea, I8X16_ADD, "i8x16.add")               \
-  V(B32X4, B32X4, B32X4, 0,  0xeb, B32X4_ADD, "b32x4.add")               \
   V(B16X8, B16X8, B16X8, 0,  0xec, B16X8_ADD, "b16x8.add")               \
   V(U32X4, U32X4, U32X4, 0,  0xed, U32X4_ADD, "u32x4.add")               \
   V(U16X8, U16X8, U16X8, 0,  0xee, U16X8_ADD, "u16x8.add")               \
@@ -424,8 +423,10 @@ enum { WASM_USE_NATURAL_ALIGNMENT = 0xFFFFFFFF };
   V(B8X16, I32, ___, 16,  0xf6, B8X16_BUILD, "b8x16.build")               \
   V(U32X4, I32, ___, 4,  0xf7, U32X4_BUILD, "u32x4.build")               \
   V(U16X8, I32, ___, 8,  0xf8, U16X8_BUILD, "u16x8.build")               \
+  V(F32X4, F32, ___, 4,  0xeb, F32X4_BUILD, "f32x4.build")               \
   V(U8X16, I32, ___, 16,  0xf9, U8X16_BUILD, "u8x16.build")
- 
+
+
 typedef enum WasmOpcode {
 #define V(rtype, type1, type2, mem_size, code, NAME, text) \
   WASM_OPCODE_##NAME = code,

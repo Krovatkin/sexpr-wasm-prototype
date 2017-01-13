@@ -457,7 +457,6 @@ int wasm_ast_lexer_lex(WASM_AST_PARSER_STYPE* lval,
     <i> "i32x4.add"            { OPCODE(I32X4_ADD); RETURN(BINARY); }
     <i> "i16x8.add"            { OPCODE(I16X8_ADD); RETURN(BINARY); }
     <i> "i8x16.add"            { OPCODE(I8X16_ADD); RETURN(BINARY); }
-    <i> "b32x4.add"            { OPCODE(B32X4_ADD); RETURN(BINARY); }
     <i> "b16x8.add"            { OPCODE(B16X8_ADD); RETURN(BINARY); }
     <i> "u32x4.add"            { OPCODE(U32X4_ADD); RETURN(BINARY); }
     <i> "u16x8.add"            { OPCODE(U16X8_ADD); RETURN(BINARY); }
@@ -472,6 +471,7 @@ int wasm_ast_lexer_lex(WASM_AST_PARSER_STYPE* lval,
     <i> "u32x4.build"            { OPCODE(U32X4_BUILD); RETURN(SIMD_BUILD); }
     <i> "u16x8.build"            { OPCODE(U16X8_BUILD); RETURN(SIMD_BUILD); }
     <i> "u8x16.build"            { OPCODE(U8X16_BUILD); RETURN(SIMD_BUILD); }
+    <i> "f32x4.build"            { OPCODE(F32X4_BUILD); RETURN(SIMD_BUILD); }
 
     <i> "select"              { RETURN(SELECT); }
     <i> "unreachable"         { RETURN(UNREACHABLE); }
