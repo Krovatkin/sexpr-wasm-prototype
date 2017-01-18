@@ -239,6 +239,15 @@ int wasm_ast_lexer_lex(WASM_AST_PARSER_STYPE* lval,
     <i> "f32"                 { TYPE(F32); RETURN(VALUE_TYPE); }
     <i> "f64"                 { TYPE(F64); RETURN(VALUE_TYPE); }
     <i> "f32x4"               { TYPE(F32X4); RETURN(VALUE_TYPE); }
+    <i> "i32x4"               { TYPE(I32X4); RETURN(VALUE_TYPE); }
+    <i> "i16x8"               { TYPE(I16X8); RETURN(VALUE_TYPE); }
+    <i> "i8x16"               { TYPE(I8X16); RETURN(VALUE_TYPE); }
+    <i> "b32x4"               { TYPE(B32X4); RETURN(VALUE_TYPE); }
+    <i> "b16x8"               { TYPE(B16X8); RETURN(VALUE_TYPE); }
+    <i> "b8x16"               { TYPE(B8X16); RETURN(VALUE_TYPE); }
+    <i> "u32x4"               { TYPE(U32X4); RETURN(VALUE_TYPE); }
+    <i> "u16x8"               { TYPE(U16X8); RETURN(VALUE_TYPE); }
+    <i> "u8x16"               { TYPE(U8X16); RETURN(VALUE_TYPE); }
     <i> "anyfunc"             { RETURN(ANYFUNC); }
     <i> "mut"                 { RETURN(MUT); }
     <i> "nop"                 { RETURN(NOP); }
@@ -437,15 +446,6 @@ int wasm_ast_lexer_lex(WASM_AST_PARSER_STYPE* lval,
     <i> "f32x4.load"            { OPCODE(F32X4_LOAD); RETURN(LOAD); }
     <i> "f32x4.store"            { OPCODE(F32X4_STORE); RETURN(STORE); }
     <i> "f32x4.load1"            { OPCODE(F32X4_LOAD1); RETURN(LOAD); }
-    <i> "f32x4.load2"            { OPCODE(F32X4_LOAD2); RETURN(LOAD); }
-    <i> "f32x4.load3"            { OPCODE(F32X4_LOAD3); RETURN(LOAD); }
-    <i> "f32x4.store1"            { OPCODE(F32X4_STORE1); RETURN(STORE); }
-    <i> "f32x4.store2"            { OPCODE(F32X4_STORE2); RETURN(STORE); }
-    <i> "f32x4.store3"            { OPCODE(F32X4_STORE3); RETURN(STORE); }
-    <i> "f32x4.neg"            { OPCODE(F32X4_NEG); RETURN(UNARY); }
-    <i> "f32x4.abs"            { OPCODE(F32X4_ABS); RETURN(UNARY); }
-    <i> "f32x4.min"            { OPCODE(F32X4_MIN); RETURN(BINARY); }
-    <i> "f32x4.max"            { OPCODE(F32X4_MAX); RETURN(BINARY); }
     <i> "f32x4.min_num"            { OPCODE(F32X4_MIN_NUM); RETURN(BINARY); }
     <i> "f32x4.max_num"            { OPCODE(F32X4_MAX_NUM); RETURN(BINARY); }
     <i> "f32x4.add"            { OPCODE(F32X4_ADD); RETURN(BINARY); }
@@ -472,6 +472,15 @@ int wasm_ast_lexer_lex(WASM_AST_PARSER_STYPE* lval,
     <i> "u16x8.build"            { OPCODE(U16X8_BUILD); RETURN(SIMD_BUILD); }
     <i> "u8x16.build"            { OPCODE(U8X16_BUILD); RETURN(SIMD_BUILD); }
     <i> "f32x4.build"            { OPCODE(F32X4_BUILD); RETURN(SIMD_BUILD); }
+    <i> "i32x4.extract"            { OPCODE(I32X4_EXTRACT); RETURN(BINARY); }
+    <i> "i16x8.extract"            { OPCODE(I16X8_EXTRACT); RETURN(BINARY); }
+    <i> "i8x16.extract"            { OPCODE(I8X16_EXTRACT); RETURN(BINARY); }
+    <i> "b32x4.extract"            { OPCODE(B32X4_EXTRACT); RETURN(BINARY); }
+    <i> "b16x8.extract"            { OPCODE(B16X8_EXTRACT); RETURN(BINARY); }
+    <i> "b8x16.extract"            { OPCODE(B8X16_EXTRACT); RETURN(BINARY); }
+    <i> "u32x4.extract"            { OPCODE(U32X4_EXTRACT); RETURN(BINARY); }
+    <i> "u16x8.extract"            { OPCODE(U16X8_EXTRACT); RETURN(BINARY); }
+    <i> "u8x16.extract"            { OPCODE(U8X16_EXTRACT); RETURN(BINARY); }
 
     <i> "select"              { RETURN(SELECT); }
     <i> "unreachable"         { RETURN(UNREACHABLE); }

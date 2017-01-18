@@ -183,7 +183,7 @@ typedef struct WasmLimits {
 
 enum { WASM_USE_NATURAL_ALIGNMENT = 0xFFFFFFFF };
 
- 
+
 /*
  *   tr: result type
  *   t1: type of the 1st parameter
@@ -381,15 +381,16 @@ enum { WASM_USE_NATURAL_ALIGNMENT = 0xFFFFFFFF };
   V(F32X4, I32, ___, 16,  0xca, F32X4_LOAD, "f32x4.load")               \
   V(___, F32X4, I32, 16,  0xcb, F32X4_STORE, "f32x4.store")             \
   V(F32X4, I32, ___, 16,  0xcc, F32X4_LOAD1, "f32x4.load1")             \
-  V(F32X4, I32, ___, 16,  0xcd, F32X4_LOAD2, "f32x4.load2")             \
-  V(F32X4, I32, ___, 16,  0xce, F32X4_LOAD3, "f32x4.load3")             \
-  V(___, F32X4, I32, 16,  0xd0, F32X4_STORE1, "f32x4.store1")           \
-  V(___, F32X4, I32, 16,  0xd1, F32X4_STORE2, "f32x4.store2")           \
-  V(___, F32X4, I32, 16,  0xd2, F32X4_STORE3, "f32x4.store3")           \
-  V(F32X4, F32X4, ___, 0, 0xd3, F32X4_NEG,    "f32x4.neg")              \
-  V(F32X4, F32X4, ___, 0, 0xd4, F32X4_ABS,    "f32x4.abs")              \
-  V(F32X4, F32X4, F32X4, 0, 0xd5, F32X4_MIN, "f32x4.min")               \
-  V(F32X4, F32X4, F32X4, 0, 0xd6, F32X4_MAX, "f32x4.max")               \
+    V(I32, I32X4, I32, 0,  0xcd, I32X4_EXTRACT, "i32x4.extract")               \
+    V(I32, I16X8, I32, 0,  0xce, I16X8_EXTRACT, "i16x8.extract")               \
+    V(I32, I8X16, I32, 0,  0xcf, I8X16_EXTRACT, "i8x16.extract")               \
+    V(I32, B32X4, I32, 0,  0xd0, B32X4_EXTRACT, "b32x4.extract")               \
+    V(I32, B16X8, I32, 0,  0xd1, B16X8_EXTRACT, "b16x8.extract")               \
+    V(I32, B8X16, I32, 0,  0xd2, B8X16_EXTRACT, "b8x16.extract")               \
+    V(I32, U32X4, I32, 0,  0xd3, U32X4_EXTRACT, "u32x4.extract")               \
+    V(I32, U16X8, I32, 0,  0xd4, U16X8_EXTRACT, "u16x8.extract")               \
+    V(I32, U8X16, I32, 0,  0xd5, U8X16_EXTRACT, "u8x16.extract")               \
+    V(F32, F32X4, I32, 0,  0xd6, F32X4_EXTRACT, "f32x4.extract")               \
   V(F32X4, F32X4, F32X4, 0, 0xd7, F32X4_MIN_NUM, "f32x4.min_num")       \
   V(F32X4, F32X4, F32X4, 0, 0xd8, F32X4_MAX_NUM, "f32x4.max_num")       \
   V(F32X4, F32X4, F32X4, 0, 0xd9, F32X4_ADD, "f32x4.add")               \
