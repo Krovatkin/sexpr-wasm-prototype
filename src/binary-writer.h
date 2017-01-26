@@ -76,7 +76,7 @@ void wasm_write_str(struct WasmStream* stream,
                     enum WasmPrintChars print_chars,
                     const char* desc);
 
-void wasm_write_opcode(struct WasmStream* stream, uint8_t opcode);
+void wasm_write_opcode(struct WasmStream* stream, uint16_t opcode);
 
 void wasm_write_limits(struct WasmStream* stream, const WasmLimits* limits);
 WASM_EXTERN_C_END

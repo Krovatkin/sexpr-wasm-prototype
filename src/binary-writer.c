@@ -216,8 +216,32 @@ void wasm_write_str(WasmStream* stream,
   stream->offset += length;
 }
 
-void wasm_write_opcode(WasmStream* stream, uint8_t opcode) {
-  wasm_write_u8(stream, opcode, wasm_get_opcode_name(opcode));
+void wasm_write_opcode(WasmStream* stream, uint16_t opcode) {
+
+  /*
+  if (opcode >= WASM_EXTENDED_START) {
+      wasm_write_u8(stream, WASM_EXTENDED_OPCODE, "extended");
+      const char* opcode_name = wasm_get_opcode_name(opcode);
+      opcode -= WASM_EXTENDED_START;
+      assert (opcode < WASM_EXTENDED_START);
+      wasm_write_u8(stream, (uint8_t) opcode, opcode_name);
+  }
+  else {
+      wasm_write_u8(stream, (uint8_t) opcode, wasm_get_opcode_name(opcode));
+  }
+  */
+
+  const char* opcode_name = wasm_get_opcode_name(opcode);
+
+  if (opcode >= WASM_EXTENDED_START) {
+      wasm_write_u8(stream, WASM_EXTENDED_OPCODE, "extended");
+      opcode -= WASM_EXTENDED_START;
+      assert (opcode < WASM_EXTENDED_START);
+  }
+
+  wasm_write_u8(stream, (uint8_t) opcode, opcode_name);
+
+
 }
 
 void wasm_write_type(WasmStream* stream, WasmType type) {

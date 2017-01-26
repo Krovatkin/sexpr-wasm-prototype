@@ -41,7 +41,7 @@ static const char* s_interpreter_opcode_name[] = {
       return WASM_ERROR;   \
   } while (0)
 
-static const char* wasm_get_interpreter_opcode_name(uint8_t opcode) {
+static const char* wasm_get_interpreter_opcode_name(uint16_t opcode) {
   assert(opcode < WASM_ARRAY_SIZE(s_interpreter_opcode_name));
   return s_interpreter_opcode_name[opcode];
 }
@@ -800,6 +800,57 @@ WasmInterpreterResult wasm_run_interpreter(WasmInterpreterThread* thread,
   for (i = 0; i < num_instructions; ++i) {
     uint8_t opcode = *pc++;
     switch (opcode) {
+      case WASM_EXTENDED_OPCODE:
+      {
+          {
+              uint16_t eopcode = WASM_EXTENDED_START  + *pc++;
+              switch (eopcode) {
+                  case WASM_OPCODE_ALLOCA: {
+                          WasmInterpreterValue* old_value_stack_top = thread->value_stack_top;
+                          thread->value_stack_top += read_u32(&pc);
+                          CHECK_STACK();
+                          memset(old_value_stack_top, 0,
+                                 (thread->value_stack_top - old_value_stack_top) *
+                                     sizeof(WasmInterpreterValue));
+                          break;
+                    }
+
+                  case WASM_OPCODE_BR_UNLESS: {
+                    uint32_t new_pc = read_u32(&pc);
+                    if (!POP_I32())
+                      GOTO(new_pc);
+                    break;
+                  }
+
+                  case WASM_OPCODE_DROP_KEEP: {
+                    uint32_t drop_count = read_u32(&pc);
+                    uint8_t keep_count = *pc++;
+                    DROP_KEEP(drop_count, keep_count);
+                    break;
+                  }
+
+                  case WASM_OPCODE_DATA:
+                    /* shouldn't ever execute this */
+                    assert(0);
+                    break;
+
+                  case WASM_OPCODE_CALL_HOST: {
+                    uint32_t func_index = read_u32(&pc);
+                    assert(func_index < env->funcs.size);
+                    WasmInterpreterFunc* func = &env->funcs.data[func_index];
+                    wasm_call_host(thread, func);
+                    break;
+                  }
+
+                  default:
+                      assert(0);
+                      break;
+
+              }
+          }
+
+          break;
+      }
       case WASM_OPCODE_SELECT: {
         VALUE_TYPE_I32 cond = POP_I32();
         WasmInterpreterValue false_ = POP();
@@ -920,14 +971,6 @@ WasmInterpreterResult wasm_run_interpreter(WasmInterpreterThread* thread,
           PUSH_CALL();
           GOTO(func->defined.offset);
         }
-        break;
-      }
-
-      case WASM_OPCODE_CALL_HOST: {
-        uint32_t func_index = read_u32(&pc);
-        assert(func_index < env->funcs.size);
-        WasmInterpreterFunc* func = &env->funcs.data[func_index];
-        wasm_call_host(thread, func);
         break;
       }
 
@@ -1649,37 +1692,9 @@ WasmInterpreterResult wasm_run_interpreter(WasmInterpreterThread* thread,
         break;
       }
 
-      case WASM_OPCODE_ALLOCA: {
-        WasmInterpreterValue* old_value_stack_top = thread->value_stack_top;
-        thread->value_stack_top += read_u32(&pc);
-        CHECK_STACK();
-        memset(old_value_stack_top, 0,
-               (thread->value_stack_top - old_value_stack_top) *
-                   sizeof(WasmInterpreterValue));
-        break;
-      }
-
-      case WASM_OPCODE_BR_UNLESS: {
-        uint32_t new_pc = read_u32(&pc);
-        if (!POP_I32())
-          GOTO(new_pc);
-        break;
-      }
-
+      //case WASM_OPCODE_ALLOCA: {
       case WASM_OPCODE_DROP:
         (void)POP();
-        break;
-
-      case WASM_OPCODE_DROP_KEEP: {
-        uint32_t drop_count = read_u32(&pc);
-        uint8_t keep_count = *pc++;
-        DROP_KEEP(drop_count, keep_count);
-        break;
-      }
-
-      case WASM_OPCODE_DATA:
-        /* shouldn't ever execute this */
-        assert(0);
         break;
 
       case WASM_OPCODE_NOP:
@@ -1708,6 +1723,12 @@ void wasm_trace_pc(WasmInterpreterThread* thread, WasmStream* stream) {
 
   uint8_t opcode = *pc++;
   switch (opcode) {
+    case WASM_EXTENDED_OPCODE: {
+        opcode = *pc++;
+        wasm_writef(stream, "extended!");
+        break;
+    }
+
     case WASM_OPCODE_SELECT:
       wasm_writef(stream, "%s %u, %" PRIu64 ", %" PRIu64 "\n",
                   wasm_get_interpreter_opcode_name(opcode), PICK(3).i32,
@@ -1794,10 +1815,10 @@ void wasm_trace_pc(WasmInterpreterThread* thread, WasmStream* stream) {
                   TOP().i32);
       break;
 
-    case WASM_OPCODE_CALL_HOST:
-      wasm_writef(stream, "%s $%u\n", wasm_get_interpreter_opcode_name(opcode),
-                  read_u32_at(pc));
-      break;
+//    case WASM_OPCODE_CALL_HOST:
+//      wasm_writef(stream, "%s $%u\n", wasm_get_interpreter_opcode_name(opcode),
+//                  read_u32_at(pc));
+//      break;
 
     case WASM_OPCODE_I32_LOAD8_S:
     case WASM_OPCODE_I32_LOAD8_U:
@@ -2041,28 +2062,28 @@ void wasm_trace_pc(WasmInterpreterThread* thread, WasmStream* stream) {
       wasm_writef(stream, "%s %u\n", wasm_get_interpreter_opcode_name(opcode),
                   TOP().i32);
       break;
+//
+//    case WASM_OPCODE_ALLOCA:
+//      wasm_writef(stream, "%s $%u\n", wasm_get_interpreter_opcode_name(opcode),
+//                  read_u32_at(pc));
+//      break;
+//
+//    case WASM_OPCODE_BR_UNLESS:
+//      wasm_writef(stream, "%s @%u, %u\n",
+//                  wasm_get_interpreter_opcode_name(opcode), read_u32_at(pc),
+//                  TOP().i32);
+//      break;
+//
+//    case WASM_OPCODE_DROP_KEEP:
+//      wasm_writef(stream, "%s $%u $%u\n",
+//                  wasm_get_interpreter_opcode_name(opcode), read_u32_at(pc),
+//                  *(pc + 4));
+//      break;
 
-    case WASM_OPCODE_ALLOCA:
-      wasm_writef(stream, "%s $%u\n", wasm_get_interpreter_opcode_name(opcode),
-                  read_u32_at(pc));
-      break;
-
-    case WASM_OPCODE_BR_UNLESS:
-      wasm_writef(stream, "%s @%u, %u\n",
-                  wasm_get_interpreter_opcode_name(opcode), read_u32_at(pc),
-                  TOP().i32);
-      break;
-
-    case WASM_OPCODE_DROP_KEEP:
-      wasm_writef(stream, "%s $%u $%u\n",
-                  wasm_get_interpreter_opcode_name(opcode), read_u32_at(pc),
-                  *(pc + 4));
-      break;
-
-    case WASM_OPCODE_DATA:
-      /* shouldn't ever execute this */
-      assert(0);
-      break;
+//    case WASM_OPCODE_DATA:
+//      /* shouldn't ever execute this */
+//      assert(0);
+//      break;
 
     default:
       assert(0);
@@ -2174,10 +2195,10 @@ void wasm_disassemble(WasmInterpreterEnvironment* env,
         break;
       }
 
-      case WASM_OPCODE_CALL_HOST:
-        wasm_writef(stream, "%s $%u\n",
-                    wasm_get_interpreter_opcode_name(opcode), read_u32(&pc));
-        break;
+//      case WASM_OPCODE_CALL_HOST:
+//        wasm_writef(stream, "%s $%u\n",
+//                    wasm_get_interpreter_opcode_name(opcode), read_u32(&pc));
+//        break;
 
       case WASM_OPCODE_I32_LOAD8_S:
       case WASM_OPCODE_I32_LOAD8_U:
@@ -2354,50 +2375,50 @@ void wasm_disassemble(WasmInterpreterEnvironment* env,
         break;
       }
 
-      case WASM_OPCODE_ALLOCA:
-        wasm_writef(stream, "%s $%u\n",
-                    wasm_get_interpreter_opcode_name(opcode), read_u32(&pc));
-        break;
+//      case WASM_OPCODE_ALLOCA:
+//        wasm_writef(stream, "%s $%u\n",
+//                    wasm_get_interpreter_opcode_name(opcode), read_u32(&pc));
+//        break;
 
-      case WASM_OPCODE_BR_UNLESS:
-        wasm_writef(stream, "%s @%u, %%[-1]\n",
-                    wasm_get_interpreter_opcode_name(opcode), read_u32(&pc));
-        break;
+//      case WASM_OPCODE_BR_UNLESS:
+//        wasm_writef(stream, "%s @%u, %%[-1]\n",
+//                    wasm_get_interpreter_opcode_name(opcode), read_u32(&pc));
+//        break;
 
-      case WASM_OPCODE_DROP_KEEP: {
-        uint32_t drop = read_u32(&pc);
-        uint32_t keep = *pc++;
-        wasm_writef(stream, "%s $%u $%u\n",
-                    wasm_get_interpreter_opcode_name(opcode), drop, keep);
-        break;
-      }
+//      case WASM_OPCODE_DROP_KEEP: {
+//        uint32_t drop = read_u32(&pc);
+//        uint32_t keep = *pc++;
+//        wasm_writef(stream, "%s $%u $%u\n",
+//                    wasm_get_interpreter_opcode_name(opcode), drop, keep);
+//        break;
+//      }
 
-      case WASM_OPCODE_DATA: {
-        uint32_t num_bytes = read_u32(&pc);
-        wasm_writef(stream, "%s $%u\n",
-                    wasm_get_interpreter_opcode_name(opcode), num_bytes);
-        /* for now, the only reason this is emitted is for br_table, so display
-         * it as a list of table entries */
-        if (num_bytes % WASM_TABLE_ENTRY_SIZE == 0) {
-          uint32_t num_entries = num_bytes / WASM_TABLE_ENTRY_SIZE;
-          uint32_t i;
-          for (i = 0; i < num_entries; ++i) {
-            wasm_writef(stream, "%4" PRIzd "| ", pc - istream);
-            uint32_t offset;
-            uint32_t drop;
-            uint8_t keep;
-            read_table_entry_at(pc, &offset, &drop, &keep);
-            wasm_writef(stream, "  entry %d: offset: %u drop: %u keep: %u\n", i,
-                        offset, drop, keep);
-            pc += WASM_TABLE_ENTRY_SIZE;
-          }
-        } else {
-          /* just skip those data bytes */
-          pc += num_bytes;
-        }
-
-        break;
-      }
+//      case WASM_OPCODE_DATA: {
+//        uint32_t num_bytes = read_u32(&pc);
+//        wasm_writef(stream, "%s $%u\n",
+//                    wasm_get_interpreter_opcode_name(opcode), num_bytes);
+//        /* for now, the only reason this is emitted is for br_table, so display
+//         * it as a list of table entries */
+//        if (num_bytes % WASM_TABLE_ENTRY_SIZE == 0) {
+//          uint32_t num_entries = num_bytes / WASM_TABLE_ENTRY_SIZE;
+//          uint32_t i;
+//          for (i = 0; i < num_entries; ++i) {
+//            wasm_writef(stream, "%4" PRIzd "| ", pc - istream);
+//            uint32_t offset;
+//            uint32_t drop;
+//            uint8_t keep;
+//            read_table_entry_at(pc, &offset, &drop, &keep);
+//            wasm_writef(stream, "  entry %d: offset: %u drop: %u keep: %u\n", i,
+//                        offset, drop, keep);
+//            pc += WASM_TABLE_ENTRY_SIZE;
+//          }
+//        } else {
+//          /* just skip those data bytes */
+//          pc += num_bytes;
+//        }
+//
+//        break;
+//      }
 
       default:
         assert(0);

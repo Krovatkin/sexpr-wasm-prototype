@@ -416,7 +416,7 @@ enum { WASM_USE_NATURAL_ALIGNMENT = 0xFFFFFFFF };
   V(U16X8, U16X8, U16X8, 0,  0xee, U16X8_ADD, "u16x8.add")               \
   V(U8X16, U8X16, U8X16, 0,  0xef, U8X16_ADD, "u8x16.add")               \
   V(B8X16, B8X16, B8X16, 0,  0xf0, B8X16_ADD, "b8x16.add")               \
-  V(I32X4, I32, ___, 4,  0xf1, I32X4_BUILD, "i32x4.build")               \
+  V(I32X4, I32, ___, 4,  0x107, I32X4_BUILD, "i32x4.build")               \
   V(I16X8, I32, ___, 8,  0xf2, I16X8_BUILD, "i16x8.build")               \
   V(I8X16, I32, ___, 16,  0xf3, I8X16_BUILD, "i8x16.build")               \
   V(B32X4, I32, ___, 4,  0xf4, B32X4_BUILD, "b32x4.build")               \
@@ -425,6 +425,11 @@ enum { WASM_USE_NATURAL_ALIGNMENT = 0xFFFFFFFF };
   V(U32X4, I32, ___, 4,  0xf7, U32X4_BUILD, "u32x4.build")               \
   V(U16X8, I32, ___, 8,  0xf8, U16X8_BUILD, "u16x8.build")               \
   V(F32X4, F32, ___, 4,  0xeb, F32X4_BUILD, "f32x4.build")               \
+  V(F32X4, F32, ___, 4,  0xfa, F32X4_BUILD1, "f32x4.build")               \
+  V(F32X4, F32, ___, 4,  0xfb, F32X4_BUILD2, "f32x4.build")               \
+  V(F32X4, F32, ___, 4,  0xfc, F32X4_BUILD3, "f32x4.build")               \
+  V(F32X4, F32, ___, 4,  0xfd, F32X4_BUILD4, "f32x4.build")               \
+  V(F32X4, F32, ___, 4,  0xfe, F32X4_BUILD5, "f32x4.build")               \
   V(U8X16, I32, ___, 16,  0xf9, U8X16_BUILD, "u8x16.build")
 
 
@@ -433,7 +438,10 @@ typedef enum WasmOpcode {
   WASM_OPCODE_##NAME = code,
   WASM_FOREACH_OPCODE(V)
 #undef V
-  WASM_NUM_OPCODES
+  WASM_EXTENDED_START = 256,
+  WASM_HOST_START = 400,
+  WASM_EXTENDED_OPCODE = 6,
+  WASM_NUM_OPCODES = 511
 } WasmOpcode;
 
 typedef struct WasmOpcodeInfo {
