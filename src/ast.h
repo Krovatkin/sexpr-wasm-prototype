@@ -85,6 +85,10 @@ typedef enum WasmExprType {
   WASM_EXPR_TYPE_TEE_LOCAL,
   WASM_EXPR_TYPE_UNARY,
   WASM_EXPR_TYPE_SIMD_BUILD,
+  WASM_EXPR_TYPE_SIMD_SWIZZLE,
+  WASM_EXPR_TYPE_SIMD_SHUFFLE,
+  WASM_EXPR_TYPE_SIMD_REPLACE,
+  WASM_EXPR_TYPE_SIMD_SELECT,
   WASM_EXPR_TYPE_UNREACHABLE,
 } WasmExprType;
 
@@ -102,7 +106,7 @@ struct WasmExpr {
   WasmExprType type;
   WasmExpr* next;
   union {
-    struct { WasmOpcode opcode; } binary, compare, convert, unary, simd_build;
+    struct { WasmOpcode opcode; } binary, compare, convert, unary, simd_build, simd_op;
     WasmBlock block, loop;
     struct { WasmVar var; } br, br_if;
     struct { WasmVarVector targets; WasmVar default_target; } br_table;
@@ -437,6 +441,10 @@ WasmExpr* wasm_new_tee_local_expr(struct WasmAllocator*);
 WasmExpr* wasm_new_unary_expr(struct WasmAllocator*);
 WasmExpr* wasm_new_unreachable_expr(struct WasmAllocator*);
 WasmExpr* wasm_new_simd_build_expr(struct WasmAllocator*);
+WasmExpr* wasm_new_simd_swizzle_expr(struct WasmAllocator*);
+WasmExpr* wasm_new_simd_shuffle_expr(struct WasmAllocator*);
+WasmExpr* wasm_new_simd_replace_expr(struct WasmAllocator*);
+WasmExpr* wasm_new_simd_select_expr(struct WasmAllocator*);
 
 
 /* destruction functions. not needed unless you're creating your own AST

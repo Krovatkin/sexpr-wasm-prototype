@@ -201,7 +201,7 @@ static void on_read_binary_error(uint32_t offset, const char* error,
 %token CALL CALL_IMPORT CALL_INDIRECT RETURN
 %token GET_LOCAL SET_LOCAL TEE_LOCAL GET_GLOBAL SET_GLOBAL
 %token LOAD STORE OFFSET_EQ_NAT ALIGN_EQ_NAT
-%token CONST UNARY BINARY COMPARE CONVERT SELECT SIMD_BUILD SIMD_CONST
+%token CONST UNARY BINARY COMPARE CONVERT SELECT SIMD_BUILD SIMD_CONST SIMD_SWIZZLE SIMD_SHUFFLE SIMD_SELECT SIMD_REPLACE
 %token UNREACHABLE CURRENT_MEMORY GROW_MEMORY
 %token FUNC START TYPE PARAM RESULT LOCAL GLOBAL
 %token MODULE TABLE ELEM MEMORY DATA OFFSET IMPORT EXPORT
@@ -211,7 +211,7 @@ static void on_read_binary_error(uint32_t offset, const char* error,
 %token INPUT OUTPUT
 %token EOF 0 "EOF"
 
-%type<opcode> BINARY COMPARE CONVERT LOAD STORE UNARY SIMD_BUILD SIMD_CONST
+%type<opcode> BINARY COMPARE CONVERT LOAD STORE UNARY SIMD_BUILD SIMD_CONST SIMD_SWIZZLE SIMD_SHUFFLE SIMD_SELECT SIMD_REPLACE
 %type<text> ALIGN_EQ_NAT OFFSET_EQ_NAT TEXT VAR
 %type<type> SELECT
 %type<type> CONST VALUE_TYPE
@@ -592,6 +592,22 @@ plain_instr :
       $$ = wasm_new_simd_build_expr(parser->allocator);
       $$->simd_build.opcode = $1;
     }
+  | SIMD_SWIZZLE {
+      $$ = wasm_new_simd_swizzle_expr(parser->allocator);
+      $$->simd_build.opcode = $1;
+    }
+  | SIMD_SHUFFLE {
+      $$ = wasm_new_simd_shuffle_expr(parser->allocator);
+      $$->simd_build.opcode = $1;
+    }
+  | SIMD_REPLACE {
+      $$ = wasm_new_simd_replace_expr(parser->allocator);
+      $$->simd_build.opcode = $1;
+    }
+  | SIMD_SELECT {
+      $$ = wasm_new_simd_select_expr(parser->allocator);
+      $$->simd_build.opcode = $1;
+    }
 ;
 block_instr :
     BLOCK labeling_opt block END labeling_opt {
@@ -652,23 +668,25 @@ expr1 :
         wasm_ast_parser_error(&@1, lexer, parser, "length mismatch");
     }
 
-    char* dst = (char*)expr->const_.v128_bits;
+    char* dst = (char*) expr->const_.v128_bits;
     size_t width = 0;
     
-    switch ($1) {   
+    switch ($1) {
+        case WASM_OPCODE_F64X2_CONST:
+        case WASM_OPCODE_I64X2_CONST:
+        case WASM_OPCODE_B64X2_CONST:
+            width = 8;
+            break;
         case WASM_OPCODE_F32X4_CONST:
         case WASM_OPCODE_I32X4_CONST:
-        case WASM_OPCODE_U32X4_CONST:
         case WASM_OPCODE_B32X4_CONST:
             width = 4;
             break;
         case WASM_OPCODE_I16X8_CONST:
-        case WASM_OPCODE_U16X8_CONST:
         case WASM_OPCODE_B16X8_CONST:
             width = 2;
             break;
         case WASM_OPCODE_I8X16_CONST:
-        case WASM_OPCODE_U8X16_CONST:
         case WASM_OPCODE_B8X16_CONST:
             width = 1;
             break;
@@ -676,15 +694,14 @@ expr1 :
             assert(0);
     }
        
-    for (unsigned i = 0; i < lanes; i++, dst += width) {
+    for (uint64_t i = 0; i < lanes; i++, dst += width) {
         if ($2.data[i].type != lane_type) {
-            wasm_ast_parser_error(&@1, lexer, parser, "type mismatch");
+            wasm_ast_parser_error(&@1, lexer, parser, "different lane type expected");
         }
-        memcpy(dst, &$2.data[i].f32_bits, width);
+        //@TODO warn user if a literal doesn't fit into declared type
+        memcpy(dst, &$2.data[i].u64, width);
     }
-    
-    //@TODO warn user if a literal doesn't fit into declared type
-	  
+
   }  
   | BLOCK labeling_opt block {
       WasmExpr* expr = wasm_new_block_expr(parser->allocator);

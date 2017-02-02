@@ -233,7 +233,13 @@ void wasm_write_opcode(WasmStream* stream, uint16_t opcode) {
 
   const char* opcode_name = wasm_get_opcode_name(opcode);
 
-  if (opcode >= WASM_EXTENDED_START) {
+  if (opcode >= WASM_EXTENDED_START2) {
+
+      wasm_write_u8(stream, WASM_EXTENDED_OPCODE2, "extended2");
+      opcode -= WASM_EXTENDED_START2;
+      assert (opcode < WASM_EXTENDED_START2);
+
+  } else if (opcode >= WASM_EXTENDED_START) {
       wasm_write_u8(stream, WASM_EXTENDED_OPCODE, "extended");
       opcode -= WASM_EXTENDED_START;
       assert (opcode < WASM_EXTENDED_START);
@@ -314,6 +320,10 @@ static void write_expr(Context* ctx,
                        const WasmExpr* expr) {
   switch (expr->type) {
     case WASM_EXPR_TYPE_SIMD_BUILD:
+    case WASM_EXPR_TYPE_SIMD_SWIZZLE:
+    case WASM_EXPR_TYPE_SIMD_SHUFFLE:
+    case WASM_EXPR_TYPE_SIMD_REPLACE:
+    case WASM_EXPR_TYPE_SIMD_SELECT:
         wasm_write_opcode(&ctx->stream, expr->simd_build.opcode);
         break;
     case WASM_EXPR_TYPE_BINARY:
@@ -400,9 +410,9 @@ static void write_expr(Context* ctx,
         case WASM_TYPE_B32X4:
         case WASM_TYPE_B16X8:
         case WASM_TYPE_B8X16:
-        case WASM_TYPE_U32X4:
-        case WASM_TYPE_U16X8:
-        case WASM_TYPE_U8X16:
+        case WASM_TYPE_F64X2:
+        case WASM_TYPE_I64X2:
+        case WASM_TYPE_B64X2:
             wasm_write_opcode(&ctx->stream, get_simd_const_opcode(expr->const_.type));
             for (unsigned i = 0; i < SIMD_VEC_SIZE_IN_DBWORDS; i++)
                 wasm_write_u32(&ctx->stream, expr->const_.v128_bits[i], "v128_bits");

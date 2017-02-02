@@ -801,9 +801,10 @@ WasmInterpreterResult wasm_run_interpreter(WasmInterpreterThread* thread,
     uint8_t opcode = *pc++;
     switch (opcode) {
       case WASM_EXTENDED_OPCODE:
+      case WASM_EXTENDED_OPCODE2:
       {
           {
-              uint16_t eopcode = WASM_EXTENDED_START  + *pc++;
+              uint16_t eopcode = (opcode == WASM_EXTENDED_OPCODE) ? WASM_EXTENDED_START : WASM_EXTENDED_START2  + *pc++;
               switch (eopcode) {
                   case WASM_OPCODE_ALLOCA: {
                           WasmInterpreterValue* old_value_stack_top = thread->value_stack_top;

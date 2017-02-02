@@ -59,14 +59,42 @@ WASM_BINARY_OPCODE(U8ExtractLane, 0xd5, U8_I, Simd128_ExtractLane_U8, false)
 
 """
 
-types = [ "i32x4" , "i16x8", "i8x16", "b32x4", "b16x8", "b8x16", "u32x4", "u16x8", "u8x16"]
+"""
+  V(I32, F32X4, F32X4, 0, 0xc4, F32X4_EQ, "f32x4.eq")                   \
+  V(I32, F32X4, F32X4, 0, 0xc5, F32X4_NE, "f32x4.ne")                   \
+  V(I32, F32X4, F32X4, 0, 0xc6, F32X4_LT, "f32x4.lt")                   \
+  V(I32, F32X4, F32X4, 0, 0xc7, F32X4_LE, "f32x4.le")                   \
+  V(I32, F32X4, F32X4, 0, 0xc8, F32X4_GT, "f32x4.gt")                   \
+  V(I32, F32X4, F32X4, 0, 0xc9, F32X4_GE, "f32x4.ge")                   \
+  """
 
-start_opcode = int('0xcc',16)
-size = 4
+
+
+
+#types = [ "i32x4" , "i16x8", "i8x16", "b32x4", "b16x8", "b8x16", "u32x4", "u16x8", "u8x16", "f32x4"]
+types = ["i64x2", "i32x4" , "i16x8", "i8x16", "b64x2", "b32x4", "b16x8", "b8x16", "f64x2", "f32x4"]
+ops = ["eq", "ne", "lt", "le", "gt", "ge"]
+
+start_opcode = 0x215 #int('0xcc',16)
+size = 2
 #<i> \"i16x8.const\"         { OPCODE(I16X8_CONST); RETURN(SIMD_BUILD); }
 
+def mask_type (s):
+  return "B{}X{}".format (128 // s, s)
+
 for t in types:
+    #for op in ops:
+      #print("V(B{}, {}, {}, {},  {}, {}_{}, \"{}.{}\")               \\".format(size, t.upper(), t.upper(), 0, hex(start_opcode), t.upper(), op.upper(), t, op))
     start_opcode += 1
+    print("V({}, {}, {}, {},  {}, {}_SWIZZLE, \"{}.swizzle\")               \\".format(t.upper(), t.upper(), "___", size, hex(start_opcode), t.upper(), t))  
+    start_opcode += 1
+    print("V({}, {}, {}, {},  {}, {}_SHUFFLE, \"{}.shuffle\")               \\".format(t.upper(), t.upper(), "___", size, hex(start_opcode), t.upper(), t))  
+    start_opcode += 1
+    print("V({}, {}, {}, {},  {}, {}_SELECT, \"{}.select\")               \\".format(t.upper(), mask_type(size) , t.upper(), 0, hex(start_opcode), t.upper(), t))  
+    start_opcode += 1
+    print("V({}, {}, {}, {},  {}, {}_REPLACE, \"{}.replace\")               \\".format(t.upper(), "I32", t[:t.index("x")].upper() if t[0]=='F' or t[0:2] == "I64" else "I32", 0, hex(start_opcode), t.upper(), t))  
+
+    #
     #print("V({}, {}, {}, {},  {}, {}_ADD, \"{}.add\")               \\".format(t.upper(), t.upper(), t.upper(), 0, hex(start_opcode), t.upper(), t))
     #print("<i> \"{}.const\"         {{ OPCODE({}_CONST); RETURN(SIMD_BUILD); }}".format(t, t.upper()))
     #print("<i> \"{}.add\"            {{ OPCODE({}_ADD); RETURN(BINARY); }}".format(t, t.upper()))
@@ -78,15 +106,21 @@ for t in types:
     #print("<i> \"{}.extract\"            {{ OPCODE({}_EXTRACT); RETURN(BINARY); }}".format(t, t.upper()))
     #print("<i> \"{}\"               {{ TYPE({}); RETURN(VALUE_TYPE); }}".format(t, t.upper()))
     #s = t[:t.find('x')].upper() + str(size)
-    s = t[0].upper() + str(size)
+    #s = t[0].upper() + str(size)
+  
+    #"i32x4.const"         { OPCODE(I32X4_CONST); RETURN(SIMD_CONST); }
+    #<i> "i32x4.build"          { OPCODE(I32X4_BUILD); RETURN(SIMD_BUILD); }
+
+    #print("<i> \"{}.build\"            {{ OPCODE({}_BUILD); RETURN(SIMD_BUILD); }}".format(t, t.upper()))
+    #print("<i> \"{}.const\"            {{ OPCODE({}_CONST); RETURN(SIMD_CONST); }}".format(t, t.upper()))
 
     #WASM_BINARY_OPCODE(U8ExtractLane, 0xd5, U8_I, Simd128_ExtractLane_I16, false)
 
-    print ("WASM_BINARY_OPCODE({}ExtractLane, {}, {}_{}_I, Simd128_ExtractLane_{}, false)".format(s, hex(start_opcode),s, s, s))
+    #print ("WASM_BINARY_OPCODE({}ExtractLane, {}, {}_{}_I, Simd128_ExtractLane_{}, false)".format(s, hex(start_opcode),s, s, s))
 
 
     if size == 16:
-       size = 4
+       size = 2
     else:
        size *= 2
 

@@ -16,7 +16,7 @@ if len(sys.argv) != 2:
 
 in_file = sys.argv[1]
 
-simple_tokens = ["(i32.const", "(f32.const", "(export", "(get_local", "(result", "(local", "(param"]
+simple_tokens = ["(i32.const", "(i64.const", "(f32.const", "(f64.const", "(export", "(get_local", "(result", "(local", "(param"]
 
 simple_mode = False
 
