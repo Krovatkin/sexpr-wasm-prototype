@@ -29,6 +29,8 @@
 #include "binary-reader.h"
 #include "resolve-names.h"
 
+//static WasmType peek_type(struct Context* ctx, size_t depth, int arity);
+
 typedef enum LabelType {
   LABEL_TYPE_FUNC,
   LABEL_TYPE_BLOCK,
@@ -305,7 +307,10 @@ static WasmResult check_type_stack_limit_exact(Context* ctx,
                                                const char* desc) {
   size_t limit = type_stack_limit(ctx);
   size_t avail = ctx->type_stack.size - limit;
+
   if (expected != avail) {
+	//@#$
+	printf("type at stack top : %s\n", wasm_get_type_name(ctx->type_stack.data[ctx->type_stack.size - 1]));
     print_error(ctx, loc,
                 "type stack at end of %s is %" PRIzd ". expected %" PRIzd, desc,
                 avail, expected);
@@ -607,6 +612,8 @@ static void check_expr(Context* ctx, const WasmExpr* expr) {
 
       actual = pop_type(ctx);
       check_type(ctx, loc, actual, wasm_get_opcode_result_type(expr->simd_build.opcode) /* SIMD arg and return types are the same */, "wrong arg type");
+
+      //printf("after arguments popped : %s\n", wasm_get_type_name(ctx->type_stack.data[ctx->type_stack.size - 1]));
 
       push_type(ctx, wasm_get_opcode_result_type(expr->simd_build.opcode));
       break;
