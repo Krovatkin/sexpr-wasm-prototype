@@ -200,8 +200,8 @@ static void on_read_binary_error(uint32_t offset, const char* error,
 %token NOP DROP BLOCK END IF THEN ELSE LOOP BR BR_IF BR_TABLE
 %token CALL CALL_IMPORT CALL_INDIRECT RETURN
 %token GET_LOCAL SET_LOCAL TEE_LOCAL GET_GLOBAL SET_GLOBAL
-%token LOAD STORE OFFSET_EQ_NAT ALIGN_EQ_NAT
-%token CONST UNARY BINARY COMPARE CONVERT SELECT SIMD_BUILD SIMD_CONST SIMD_SWIZZLE SIMD_SHUFFLE SIMD_SELECT SIMD_REPLACE
+%token LOAD STORE OFFSET_EQ_NAT ALIGN_EQ_NAT LANE_EQ_NAT
+%token CONST UNARY BINARY COMPARE CONVERT SELECT SIMD_BUILD SIMD_CONST SIMD_SWIZZLE SIMD_SHUFFLE SIMD_SELECT SIMD_REPLACE SIMD_EXTRACT
 %token UNREACHABLE CURRENT_MEMORY GROW_MEMORY
 %token FUNC START TYPE PARAM RESULT LOCAL GLOBAL
 %token MODULE TABLE ELEM MEMORY DATA OFFSET IMPORT EXPORT
@@ -211,8 +211,8 @@ static void on_read_binary_error(uint32_t offset, const char* error,
 %token INPUT OUTPUT
 %token EOF 0 "EOF"
 
-%type<opcode> BINARY COMPARE CONVERT LOAD STORE UNARY SIMD_BUILD SIMD_CONST SIMD_SWIZZLE SIMD_SHUFFLE SIMD_SELECT SIMD_REPLACE
-%type<text> ALIGN_EQ_NAT OFFSET_EQ_NAT TEXT VAR
+%type<opcode> BINARY COMPARE CONVERT LOAD STORE UNARY SIMD_BUILD SIMD_CONST SIMD_SWIZZLE SIMD_SHUFFLE SIMD_SELECT SIMD_REPLACE SIMD_EXTRACT
+%type<text> ALIGN_EQ_NAT OFFSET_EQ_NAT TEXT VAR LANE_EQ_NAT
 %type<type> SELECT
 %type<type> CONST VALUE_TYPE
 %type<literal> NAT INT FLOAT
@@ -249,14 +249,14 @@ static void on_read_binary_error(uint32_t offset, const char* error,
 %type<text> bind_var bind_var_opt labeling_opt quoted_text
 %type<text_list> non_empty_text_list text_list
 %type<types> value_type_list
-%type<u32> align_opt
+%type<u32> align_opt lane_opt
 %type<u64> nat offset_opt
 %type<vars> var_list
 %type<var> start type_use var script_var_opt
 
 /* These non-terminals use the types below that have destructors, but the
  * memory is shared with the lexer, so should not be destroyed. */
-%destructor {} ALIGN_EQ_NAT OFFSET_EQ_NAT TEXT VAR NAT INT FLOAT
+%destructor {} LANE_EQ_NAT ALIGN_EQ_NAT OFFSET_EQ_NAT TEXT VAR NAT INT FLOAT
 %destructor { wasm_destroy_block(parser->allocator, &$$); } <block>
 %destructor { wasm_destroy_command(parser->allocator, $$); wasm_free(parser->allocator, $$); } <command>
 %destructor { wasm_destroy_command_vector_and_elements(parser->allocator, &$$); } <commands>
@@ -480,6 +480,18 @@ align_opt :
     }
 ;
 
+lane_opt :
+    /* empty */ { $$ = USE_NATURAL_ALIGNMENT; }
+  | LANE_EQ_NAT {
+      if (WASM_FAILED(wasm_parse_int32($1.start, $1.start + $1.length, &$$,
+                                       WASM_PARSE_UNSIGNED_ONLY))) {
+        wasm_ast_parser_error(&@1, lexer, parser,
+                              "invalid alignment \"" PRIstringslice "\"",
+                              WASM_PRINTF_STRING_SLICE_ARG($1));
+      }
+    }
+;
+
 instr :
     plain_instr { $$ = join_exprs1(&@1, $1); }
   | block_instr { $$ = join_exprs1(&@1, $1); }
@@ -554,6 +566,21 @@ plain_instr :
       $$->store.offset = $2;
       $$->store.align = $3;
     }
+
+  | SIMD_EXTRACT lane_opt {
+      $$ = wasm_new_simd_extract_expr(parser->allocator);
+      $$->store.opcode = $1;
+      $$->store.offset = $2;
+      $$->store.align = 0;
+    }    
+
+  | SIMD_REPLACE lane_opt {
+      $$ = wasm_new_simd_replace_expr(parser->allocator);
+      $$->store.opcode = $1;
+      $$->store.offset = $2;
+      $$->store.align = 0;
+    }
+    
   | CONST literal {
       $$ = wasm_new_const_expr(parser->allocator);
       $$->const_.loc = @1;
@@ -658,48 +685,24 @@ expr1 :
     WasmExpr* expr = wasm_new_const_expr(parser->allocator);
     $$ = join_exprs1(&@1, expr);
     
+    const size_t NUM_BYTES = 16;
+    if ($2.size != NUM_BYTES) 
+    {
+        wasm_ast_parser_error(&@1, lexer, parser, "16 int  constants expected");
+    }
+    
     //set up a SIMD const
     expr->const_.loc = @1;
     expr->const_.type = wasm_get_opcode_result_type($1);
-    size_t lanes = wasm_get_opcode_memory_size($1);
-    WasmType lane_type = wasm_get_opcode_param_type_1($1);
-
-    if ($2.size != lanes) {
-        wasm_ast_parser_error(&@1, lexer, parser, "length mismatch");
-    }
-
-    char* dst = (char*) expr->const_.v128_bits;
-    size_t width = 0;
     
-    switch ($1) {
-        case WASM_OPCODE_F64X2_CONST:
-        case WASM_OPCODE_I64X2_CONST:
-        case WASM_OPCODE_B64X2_CONST:
-            width = 8;
-            break;
-        case WASM_OPCODE_F32X4_CONST:
-        case WASM_OPCODE_I32X4_CONST:
-        case WASM_OPCODE_B32X4_CONST:
-            width = 4;
-            break;
-        case WASM_OPCODE_I16X8_CONST:
-        case WASM_OPCODE_B16X8_CONST:
-            width = 2;
-            break;
-        case WASM_OPCODE_I8X16_CONST:
-        case WASM_OPCODE_B8X16_CONST:
-            width = 1;
-            break;
-         default:
-            assert(0);
-    }
-       
-    for (uint64_t i = 0; i < lanes; i++, dst += width) {
-        if ($2.data[i].type != lane_type) {
-            wasm_ast_parser_error(&@1, lexer, parser, "different lane type expected");
-        }
-        //@TODO warn user if a literal doesn't fit into declared type
-        memcpy(dst, &$2.data[i].u64, width);
+    char* dst = (char*) expr->const_.v128_bits;   
+    for (size_t i = 0; i < NUM_BYTES; i++, dst++) {
+        
+        if ((uint32_t) ((uint8_t) $2.data[i].u32) != (uint32_t) $2.data[i].u32) {
+            wasm_ast_parser_error(&@1, lexer, parser, "exceeds one byte value");
+        }        
+        dst[i] = (uint8_t) $2.data[i].u32;
+        
     }
 
   }  

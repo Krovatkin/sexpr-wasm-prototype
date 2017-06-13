@@ -147,11 +147,11 @@ typedef enum WasmType {
 	  WASM_TYPE_I64 = -0x02,
 	  WASM_TYPE_F32 = -0x03,
 	  WASM_TYPE_F64 = -0x04,
-	  WASM_TYPE_M128 = -0x05,
-	  WASM_TYPE_B2 = -0x06,
-	  WASM_TYPE_B4 = -0x07,
-	  WASM_TYPE_B8 = -0x08,
-	  WASM_TYPE_B16 = -0x09,
+	  WASM_TYPE_M128 = -0x84,
+	  //WASM_TYPE_B2 = -0x06,
+	  //WASM_TYPE_B4 = -0x07,
+	  //WASM_TYPE_B8 = -0x08,
+	  //WASM_TYPE_B16 = -0x09,
 	  WASM_TYPE_ANYFUNC = -0x10,
 	  WASM_TYPE_FUNC  = -0x20,
 	  WASM_TYPE_VOID  = -0x40,
@@ -376,308 +376,146 @@ enum { WASM_USE_NATURAL_ALIGNMENT = 0xFFFFFFFF };
   V(I64, F64, ___, 0, 0xbd, I64_REINTERPRET_F64, "i64.reinterpret/f64") \
   V(F32, I32, ___, 0, 0xbe, F32_REINTERPRET_I32, "f32.reinterpret/i32") \
   V(F64, I64, ___, 0, 0xbf, F64_REINTERPRET_I64, "f64.reinterpret/i64") \
-  V(M128, I64, ___, 2,  0x100, I64X2_CONST, "i64x2.const")               \
-  V(M128, I32, ___, 4,  0x101, I32X4_CONST, "i32x4.const")               \
-  V(M128, I32, ___, 8,  0x102, I16X8_CONST, "i16x8.const")               \
-  V(M128, I32, ___, 16, 0x103, I8X16_CONST, "i8x16.const")               \
-  V(B4, I32, ___, 4,  0x105, B32X4_CONST, "b32x4.const")               \
-  V(B2, I64, ___, 2,  0x104, B64X2_CONST, "b64x2.const")               \
-  V(B8, I32, ___, 8,  0x106, B16X8_CONST, "b16x8.const")               \
-  V(B16, I32, ___, 16, 0x107, B8X16_CONST, "b8x16.const")               \
-  V(M128, F64, ___, 2, 0x108, F64X2_CONST, "f64x2.const")               \
-  V(M128, F32, ___, 4, 0x109, F32X4_CONST, "f32x4.const")               \
-  V(M128, I64, ___, 2,  0x10a, I64X2_BUILD, "i64x2.build")               \
-  V(M128, I32, ___, 4,  0x10b, I32X4_BUILD, "i32x4.build")               \
-  V(M128, I32, ___, 8,  0x10c, I16X8_BUILD, "i16x8.build")               \
-  V(M128, I32, ___, 16,  0x10d, I8X16_BUILD, "i8x16.build")               \
-  V(B2, I64, ___, 2,  0x10e, B64X2_BUILD, "b64x2.build")               \
-  V(B4, I32, ___, 4,  0x10f, B32X4_BUILD, "b32x4.build")               \
-  V(B8, I32, ___, 8,  0x110, B16X8_BUILD, "b16x8.build")               \
-  V(B16, I32, ___, 16,  0x111, B8X16_BUILD, "b8x16.build")               \
-  V(M128, F64, ___, 2,  0x112, F64X2_BUILD, "f64x2.build")               \
-  V(M128, F32, ___, 4,  0x113, F32X4_BUILD, "f32x4.build")               \
-  V(B16, I32, ___, 0,  0x114, B8X16_SPLAT, "b8x16.splat")               \
-  V(I32, B16, I32, 0,  0x115, B8X16_EXTRACT, "b8x16.extract")               \
-  V(B16, B16, B16, 0,  0x116, B8X16_AND, "b8x16.and")               \
-  V(B16, B16, B16, 0,  0x117, B8X16_OR, "b8x16.or")               \
-  V(B16, B16, B16, 0,  0x118, B8X16_XOR, "b8x16.xor")               \
-  V(B16, B16, ___, 0,  0x119, B8X16_NOT, "b8x16.not")               \
-  V(I32, B16, ___, 0,  0x11a, B8X16_ANYTRUE, "b8x16.anytrue")               \
-  V(I32, B16, ___, 0,  0x11b, B8X16_ALLTRUE, "b8x16.alltrue")               \
-  V(B8, I32, ___, 0,  0x11c, B16X8_SPLAT, "b16x8.splat")               \
-  V(I32, B8, I32, 0,  0x11d, B16X8_EXTRACT, "b16x8.extract")               \
-  V(B8, B8, B8, 0,  0x11e, B16X8_AND, "b16x8.and")               \
-  V(B8, B8, B8, 0,  0x11f, B16X8_OR, "b16x8.or")               \
-  V(B8, B8, B8, 0,  0x120, B16X8_XOR, "b16x8.xor")               \
-  V(B8, B8, ___, 0,  0x121, B16X8_NOT, "b16x8.not")               \
-  V(I32, B8, ___, 0,  0x122, B16X8_ANYTRUE, "b16x8.anytrue")               \
-  V(I32, B8, ___, 0,  0x123, B16X8_ALLTRUE, "b16x8.alltrue")               \
-  V(B4, I32, ___, 0,  0x124, B32X4_SPLAT, "b32x4.splat")               \
-  V(I32, B4, I32, 0,  0x125, B32X4_EXTRACT, "b32x4.extract")               \
-  V(B4, B4, B4, 0,  0x126, B32X4_AND, "b32x4.and")               \
-  V(B4, B4, B4, 0,  0x127, B32X4_OR, "b32x4.or")               \
-  V(B4, B4, B4, 0,  0x128, B32X4_XOR, "b32x4.xor")               \
-  V(B4, B4, ___, 0,  0x129, B32X4_NOT, "b32x4.not")               \
-  V(I32, B4, ___, 0,  0x12a, B32X4_ANYTRUE, "b32x4.anytrue")               \
-  V(I32, B4, ___, 0,  0x12b, B32X4_ALLTRUE, "b32x4.alltrue")               \
-  V(B2, I32, ___, 0,  0x12c, B64X2_SPLAT, "b64x2.splat")               \
-  V(I32, B2, I32, 0,  0x12d, B64X2_EXTRACT, "b64x2.extract")               \
-  V(B2, B2, B2, 0,  0x12e, B64X2_AND, "b64x2.and")               \
-  V(B2, B2, B2, 0,  0x12f, B64X2_OR, "b64x2.or")               \
-  V(B2, B2, B2, 0,  0x130, B64X2_XOR, "b64x2.xor")               \
-  V(B2, B2, ___, 0,  0x131, B64X2_NOT, "b64x2.not")               \
-  V(I32, B2, ___, 0,  0x132, B64X2_ANYTRUE, "b64x2.anytrue")               \
-  V(I32, B2, ___, 0,  0x133, B64X2_ALLTRUE, "b64x2.alltrue")               \
-  V(M128, M128, ___, 0,  0x134, I8X16_REINTERPRET_I16X8, "i8x16.reinterpret_i16x8")               \
-  V(M128, M128, ___, 0,  0x135, I8X16_REINTERPRET_I32X4, "i8x16.reinterpret_i32x4")               \
-  V(M128, M128, ___, 0,  0x136, I8X16_REINTERPRET_I64X2, "i8x16.reinterpret_i64x2")               \
-  V(M128, M128, ___, 0,  0x137, I8X16_REINTERPRET_F32X4, "i8x16.reinterpret_f32x4")               \
-  V(M128, M128, ___, 0,  0x138, I8X16_REINTERPRET_F64X2, "i8x16.reinterpret_f64x2")               \
-  V(M128, I32, ___, 0,  0x139, I8X16_SPLAT, "i8x16.splat")               \
-  V(I32, M128, I32, 0,  0x13a, I8X16_EXTRACT_S, "i8x16.extract_s")               \
-  V(I32, M128, I32, 0,  0x13b, I8X16_EXTRACT_U, "i8x16.extract_u")               \
-  V(M128, M128, M128, 0,  0x13c, I8X16_ADD, "i8x16.add")               \
-  V(M128, M128, M128, 0,  0x13d, I8X16_SUB, "i8x16.sub")               \
-  V(M128, M128, M128, 0,  0x13e, I8X16_MUL, "i8x16.mul")               \
-  V(M128, M128, ___, 0,  0x13f, I8X16_NEG, "i8x16.neg")               \
-  V(M128, M128, M128, 0,  0x140, I8X16_ADDSATURATE_S, "i8x16.addsaturate_s")               \
-  V(M128, M128, M128, 0,  0x141, I8X16_ADDSATURATE_U, "i8x16.addsaturate_u")               \
-  V(M128, M128, M128, 0,  0x142, I8X16_SUBSATURATE_S, "i8x16.subsaturate_s")               \
-  V(M128, M128, M128, 0,  0x143, I8X16_SUBSATURATE_U, "i8x16.subsaturate_u")               \
-  V(M128, M128, I32, 0,  0x144, I8X16_SHL, "i8x16.shl")               \
-  V(M128, M128, I32, 0,  0x145, I8X16_SHR_S, "i8x16.shr_s")               \
-  V(M128, M128, I32, 0,  0x146, I8X16_SHR_U, "i8x16.shr_u")               \
-  V(M128, M128, M128, 0,  0x147, I8X16_AND, "i8x16.and")               \
-  V(M128, M128, M128, 0,  0x148, I8X16_OR, "i8x16.or")               \
-  V(M128, M128, M128, 0,  0x149, I8X16_XOR, "i8x16.xor")               \
-  V(M128, M128, ___, 0,  0x14a, I8X16_NOT, "i8x16.not")               \
-  V(B16, M128, M128, 0,  0x14b, I8X16_EQ, "i8x16.eq")               \
-  V(B16, M128, M128, 0,  0x14c, I8X16_NE, "i8x16.ne")               \
-  V(B16, M128, M128, 0,  0x14d, I8X16_LT_S, "i8x16.lt_s")               \
-  V(B16, M128, M128, 0,  0x14e, I8X16_LT_U, "i8x16.lt_u")               \
-  V(B16, M128, M128, 0,  0x14f, I8X16_LE_S, "i8x16.le_s")               \
-  V(B16, M128, M128, 0,  0x150, I8X16_LE_U, "i8x16.le_u")               \
-  V(B16, M128, M128, 0,  0x151, I8X16_GT_S, "i8x16.gt_s")               \
-  V(B16, M128, M128, 0,  0x152, I8X16_GT_U, "i8x16.gt_u")               \
-  V(B16, M128, M128, 0,  0x153, I8X16_GE_S, "i8x16.ge_s")               \
-  V(B16, M128, M128, 0,  0x154, I8X16_GE_U, "i8x16.ge_u")               \
-  V(M128, I32, ___, 16,  0x155, I8X16_LOAD, "i8x16.load")               \
-  V(___, I32, M128, 16,  0x156, I8X16_STORE, "i8x16.store")               \
-  V(M128, M128, ___, 0,  0x157, I16X8_REINTERPRET_I8X16, "i16x8.reinterpret_i8x16")               \
-  V(M128, M128, ___, 0,  0x158, I16X8_REINTERPRET_I32X4, "i16x8.reinterpret_i32x4")               \
-  V(M128, M128, ___, 0,  0x159, I16X8_REINTERPRET_I64X2, "i16x8.reinterpret_i64x2")               \
-  V(M128, M128, ___, 0,  0x15a, I16X8_REINTERPRET_F32X4, "i16x8.reinterpret_f32x4")               \
-  V(M128, M128, ___, 0,  0x15b, I16X8_REINTERPRET_F64X2, "i16x8.reinterpret_f64x2")               \
-  V(M128, I32, ___, 0,  0x15c, I16X8_SPLAT, "i16x8.splat")               \
-  V(I32, M128, I32, 0,  0x15d, I16X8_EXTRACT_S, "i16x8.extract_s")               \
-  V(I32, M128, I32, 0,  0x15e, I16X8_EXTRACT_U, "i16x8.extract_u")               \
-  V(M128, M128, M128, 0,  0x15f, I16X8_ADD, "i16x8.add")               \
-  V(M128, M128, M128, 0,  0x160, I16X8_SUB, "i16x8.sub")               \
-  V(M128, M128, M128, 0,  0x161, I16X8_MUL, "i16x8.mul")               \
-  V(M128, M128, ___, 0,  0x162, I16X8_NEG, "i16x8.neg")               \
-  V(M128, M128, M128, 0,  0x163, I16X8_ADDSATURATE_S, "i16x8.addsaturate_s")               \
-  V(M128, M128, M128, 0,  0x164, I16X8_ADDSATURATE_U, "i16x8.addsaturate_u")               \
-  V(M128, M128, M128, 0,  0x165, I16X8_SUBSATURATE_S, "i16x8.subsaturate_s")               \
-  V(M128, M128, M128, 0,  0x166, I16X8_SUBSATURATE_U, "i16x8.subsaturate_u")               \
-  V(M128, M128, I32, 0,  0x167, I16X8_SHL, "i16x8.shl")               \
-  V(M128, M128, I32, 0,  0x168, I16X8_SHR_S, "i16x8.shr_s")               \
-  V(M128, M128, I32, 0,  0x169, I16X8_SHR_U, "i16x8.shr_u")               \
-  V(M128, M128, M128, 0,  0x16a, I16X8_AND, "i16x8.and")               \
-  V(M128, M128, M128, 0,  0x16b, I16X8_OR, "i16x8.or")               \
-  V(M128, M128, M128, 0,  0x16c, I16X8_XOR, "i16x8.xor")               \
-  V(M128, M128, ___, 0,  0x16d, I16X8_NOT, "i16x8.not")               \
-  V(B8, M128, M128, 0,  0x16e, I16X8_EQ, "i16x8.eq")               \
-  V(B8, M128, M128, 0,  0x16f, I16X8_NE, "i16x8.ne")               \
-  V(B8, M128, M128, 0,  0x170, I16X8_LT_S, "i16x8.lt_s")               \
-  V(B8, M128, M128, 0,  0x171, I16X8_LT_U, "i16x8.lt_u")               \
-  V(B8, M128, M128, 0,  0x172, I16X8_LE_S, "i16x8.le_s")               \
-  V(B8, M128, M128, 0,  0x173, I16X8_LE_U, "i16x8.le_u")               \
-  V(B8, M128, M128, 0,  0x174, I16X8_GT_S, "i16x8.gt_s")               \
-  V(B8, M128, M128, 0,  0x175, I16X8_GT_U, "i16x8.gt_u")               \
-  V(B8, M128, M128, 0,  0x176, I16X8_GE_S, "i16x8.ge_s")               \
-  V(B8, M128, M128, 0,  0x177, I16X8_GE_U, "i16x8.ge_u")               \
-  V(M128, I32, ___, 8,  0x178, I16X8_LOAD, "i16x8.load")               \
-  V(___, I32, M128, 8,  0x179, I16X8_STORE, "i16x8.store")               \
-  V(M128, M128, ___, 0,  0x17a, I32X4_REINTERPRET_I8X16, "i32x4.reinterpret_i8x16")               \
-  V(M128, M128, ___, 0,  0x17b, I32X4_REINTERPRET_I16X8, "i32x4.reinterpret_i16x8")               \
-  V(M128, M128, ___, 0,  0x17c, I32X4_REINTERPRET_I64X2, "i32x4.reinterpret_i64x2")               \
-  V(M128, M128, ___, 0,  0x17d, I32X4_REINTERPRET_F32X4, "i32x4.reinterpret_f32x4")               \
-  V(M128, M128, ___, 0,  0x17e, I32X4_REINTERPRET_F64X2, "i32x4.reinterpret_f64x2")               \
-  V(M128, I32, ___, 0,  0x17f, I32X4_SPLAT, "i32x4.splat")               \
-  V(I32, M128, I32, 0,  0x180, I32X4_EXTRACT, "i32x4.extract")               \
-  V(M128, M128, M128, 0,  0x181, I32X4_ADD, "i32x4.add")               \
-  V(M128, M128, M128, 0,  0x182, I32X4_SUB, "i32x4.sub")               \
-  V(M128, M128, M128, 0,  0x183, I32X4_MUL, "i32x4.mul")               \
-  V(M128, M128, ___, 0,  0x184, I32X4_NEG, "i32x4.neg")               \
-  V(M128, M128, I32, 0,  0x185, I32X4_SHL, "i32x4.shl")               \
-  V(M128, M128, I32, 0,  0x186, I32X4_SHR_S, "i32x4.shr_s")               \
-  V(M128, M128, I32, 0,  0x187, I32X4_SHR_U, "i32x4.shr_u")               \
-  V(M128, M128, M128, 0,  0x188, I32X4_AND, "i32x4.and")               \
-  V(M128, M128, M128, 0,  0x189, I32X4_OR, "i32x4.or")               \
-  V(M128, M128, M128, 0,  0x18a, I32X4_XOR, "i32x4.xor")               \
-  V(M128, M128, ___, 0,  0x18b, I32X4_NOT, "i32x4.not")               \
-  V(B4, M128, M128, 0,  0x18c, I32X4_EQ, "i32x4.eq")               \
-  V(B4, M128, M128, 0,  0x18d, I32X4_NE, "i32x4.ne")               \
-  V(B4, M128, M128, 0,  0x18e, I32X4_LT_S, "i32x4.lt_s")               \
-  V(B4, M128, M128, 0,  0x18f, I32X4_LT_U, "i32x4.lt_u")               \
-  V(B4, M128, M128, 0,  0x190, I32X4_LE_S, "i32x4.le_s")               \
-  V(B4, M128, M128, 0,  0x191, I32X4_LE_U, "i32x4.le_u")               \
-  V(B4, M128, M128, 0,  0x192, I32X4_GT_S, "i32x4.gt_s")               \
-  V(B4, M128, M128, 0,  0x193, I32X4_GT_U, "i32x4.gt_u")               \
-  V(B4, M128, M128, 0,  0x194, I32X4_GE_S, "i32x4.ge_s")               \
-  V(B4, M128, M128, 0,  0x195, I32X4_GE_U, "i32x4.ge_u")               \
-  V(M128, I32, ___, 4,  0x196, I32X4_LOAD, "i32x4.load")               \
-  V(___, I32, M128, 4,  0x197, I32X4_STORE, "i32x4.store")               \
-  V(M128, I32, ___, 4,  0x198, I32X4_LOAD1, "i32x4.load1")               \
-  V(M128, I32, ___, 4,  0x199, I32X4_LOAD2, "i32x4.load2")               \
-  V(M128, I32, ___, 4,  0x19a, I32X4_LOAD3, "i32x4.load3")               \
-  V(___, I32, M128, 4,  0x19b, I32X4_STORE1, "i32x4.store1")               \
-  V(___, I32, M128, 4,  0x19c, I32X4_STORE2, "i32x4.store2")               \
-  V(___, I32, M128, 4,  0x19d, I32X4_STORE3, "i32x4.store3")               \
-  V(M128, M128, ___, 0,  0x19e, I32X4_TRUNC_S, "i32x4.trunc_s")               \
-  V(M128, M128, ___, 0,  0x19f, I32X4_TRUNC_U, "i32x4.trunc_u")               \
-  V(M128, M128, ___, 0,  0x1a0, I64X2_REINTERPRET_I8X16, "i64x2.reinterpret_i8x16")               \
-  V(M128, M128, ___, 0,  0x1a1, I64X2_REINTERPRET_I16X8, "i64x2.reinterpret_i16x8")               \
-  V(M128, M128, ___, 0,  0x1a2, I64X2_REINTERPRET_I32X4, "i64x2.reinterpret_i32x4")               \
-  V(M128, M128, ___, 0,  0x1a3, I64X2_REINTERPRET_F32X4, "i64x2.reinterpret_f32x4")               \
-  V(M128, M128, ___, 0,  0x1a4, I64X2_REINTERPRET_F64X2, "i64x2.reinterpret_f64x2")               \
-  V(M128, I64, ___, 0,  0x1a5, I64X2_SPLAT, "i64x2.splat")               \
-  V(I64, M128, I32, 0,  0x1a6, I64X2_EXTRACT, "i64x2.extract")               \
-  V(M128, M128, M128, 0,  0x1a7, I64X2_ADD, "i64x2.add")               \
-  V(M128, M128, M128, 0,  0x1a8, I64X2_SUB, "i64x2.sub")               \
-  V(M128, M128, M128, 0,  0x1a9, I64X2_MUL, "i64x2.mul")               \
-  V(M128, M128, ___, 0,  0x1aa, I64X2_NEG, "i64x2.neg")               \
-  V(M128, M128, I32, 0,  0x1ab, I64X2_SHL, "i64x2.shl")               \
-  V(M128, M128, I32, 0,  0x1ac, I64X2_SHR_S, "i64x2.shr_s")               \
-  V(M128, M128, I32, 0,  0x1ad, I64X2_SHR_U, "i64x2.shr_u")               \
-  V(M128, M128, M128, 0,  0x1ae, I64X2_AND, "i64x2.and")               \
-  V(M128, M128, M128, 0,  0x1af, I64X2_OR, "i64x2.or")               \
-  V(M128, M128, M128, 0,  0x1b0, I64X2_XOR, "i64x2.xor")               \
-  V(M128, M128, ___, 0,  0x1b1, I64X2_NOT, "i64x2.not")               \
-  V(B2, M128, M128, 0,  0x1b2, I64X2_EQ, "i64x2.eq")               \
-  V(B2, M128, M128, 0,  0x1b3, I64X2_NE, "i64x2.ne")               \
-  V(B2, M128, M128, 0,  0x1b4, I64X2_LT_S, "i64x2.lt_s")               \
-  V(B2, M128, M128, 0,  0x1b5, I64X2_LT_U, "i64x2.lt_u")               \
-  V(B2, M128, M128, 0,  0x1b6, I64X2_LE_S, "i64x2.le_s")               \
-  V(B2, M128, M128, 0,  0x1b7, I64X2_LE_U, "i64x2.le_u")               \
-  V(B2, M128, M128, 0,  0x1b8, I64X2_GT_S, "i64x2.gt_s")               \
-  V(B2, M128, M128, 0,  0x1b9, I64X2_GT_U, "i64x2.gt_u")               \
-  V(B2, M128, M128, 0,  0x1ba, I64X2_GE_S, "i64x2.ge_s")               \
-  V(B2, M128, M128, 0,  0x1bb, I64X2_GE_U, "i64x2.ge_u")               \
-  V(M128, I32, ___, 2,  0x1bc, I64X2_LOAD, "i64x2.load")               \
-  V(___, I32, M128, 2,  0x1bd, I64X2_STORE, "i64x2.store")               \
-  V(M128, M128, ___, 0,  0x1be, I64X2_TRUNC_S, "i64x2.trunc_s")               \
-  V(M128, M128, ___, 0,  0x1bf, I64X2_TRUNC_U, "i64x2.trunc_u")               \
-  V(M128, M128, ___, 0,  0x1c0, F32X4_REINTERPRET_I8X16, "f32x4.reinterpret_i8x16")               \
-  V(M128, M128, ___, 0,  0x1c1, F32X4_REINTERPRET_I16X8, "f32x4.reinterpret_i16x8")               \
-  V(M128, M128, ___, 0,  0x1c2, F32X4_REINTERPRET_I32X4, "f32x4.reinterpret_i32x4")               \
-  V(M128, M128, ___, 0,  0x1c3, F32X4_REINTERPRET_I64X2, "f32x4.reinterpret_i64x2")               \
-  V(M128, M128, ___, 0,  0x1c4, F32X4_REINTERPRET_F64X2, "f32x4.reinterpret_f64x2")               \
-  V(M128, F32, ___, 0,  0x1c5, F32X4_SPLAT, "f32x4.splat")               \
-  V(F32, M128, I32, 0,  0x1c6, F32X4_EXTRACT, "f32x4.extract")               \
-  V(M128, M128, M128, 0,  0x1c7, F32X4_ADD, "f32x4.add")               \
-  V(M128, M128, M128, 0,  0x1c8, F32X4_SUB, "f32x4.sub")               \
-  V(M128, M128, M128, 0,  0x1c9, F32X4_MUL, "f32x4.mul")               \
-  V(M128, M128, ___, 0,  0x1ca, F32X4_NEG, "f32x4.neg")               \
-  V(M128, M128, M128, 0,  0x1cb, F32X4_AND, "f32x4.and")               \
-  V(M128, M128, M128, 0,  0x1cc, F32X4_OR, "f32x4.or")               \
-  V(M128, M128, M128, 0,  0x1cd, F32X4_XOR, "f32x4.xor")               \
-  V(M128, M128, ___, 0,  0x1ce, F32X4_NOT, "f32x4.not")               \
-  V(B4, M128, M128, 0,  0x1cf, F32X4_EQ, "f32x4.eq")               \
-  V(B4, M128, M128, 0,  0x1d0, F32X4_NE, "f32x4.ne")               \
-  V(B4, M128, M128, 0,  0x1d1, F32X4_LT, "f32x4.lt")               \
-  V(B4, M128, M128, 0,  0x1d2, F32X4_LE, "f32x4.le")               \
-  V(B4, M128, M128, 0,  0x1d3, F32X4_GT, "f32x4.gt")               \
-  V(B4, M128, M128, 0,  0x1d4, F32X4_GE, "f32x4.ge")               \
-  V(M128, I32, ___, 4,  0x1d5, F32X4_LOAD, "f32x4.load")               \
-  V(___, I32, M128, 4,  0x1d6, F32X4_STORE, "f32x4.store")               \
-  V(M128, I32, ___, 4,  0x1d7, F32X4_LOAD1, "f32x4.load1")               \
-  V(M128, I32, ___, 4,  0x1d8, F32X4_LOAD2, "f32x4.load2")               \
-  V(M128, I32, ___, 4,  0x1d9, F32X4_LOAD3, "f32x4.load3")               \
-  V(___, I32, M128, 4,  0x1da, F32X4_STORE1, "f32x4.store1")               \
-  V(___, I32, M128, 4,  0x1db, F32X4_STORE2, "f32x4.store2")               \
-  V(___, I32, M128, 4,  0x1dc, F32X4_STORE3, "f32x4.store3")               \
-  V(M128, M128, ___, 0,  0x1dd, F32X4_ABS, "f32x4.abs")               \
-  V(M128, M128, M128, 0,  0x1de, F32X4_MIN, "f32x4.min")               \
-  V(M128, M128, M128, 0,  0x1df, F32X4_MAX, "f32x4.max")               \
-  V(M128, M128, M128, 0,  0x1e0, F32X4_DIV, "f32x4.div")               \
-  V(M128, M128, ___, 0,  0x1e1, F32X4_SQRT, "f32x4.sqrt")               \
-  V(M128, M128, ___, 0,  0x1e2, F32X4_RCP, "f32x4.rcp")               \
-  V(M128, M128, ___, 0,  0x1e3, F32X4_RSQRT, "f32x4.rsqrt")               \
-  V(M128, M128, ___, 0,  0x1e4, F32X4_CONVERT_S, "f32x4.convert_s")               \
-  V(M128, M128, ___, 0,  0x1e5, F32X4_CONVERT_U, "f32x4.convert_u")               \
-  V(M128, M128, ___, 0,  0x1e6, F64X2_REINTERPRET_I8X16, "f64x2.reinterpret_i8x16")               \
-  V(M128, M128, ___, 0,  0x1e7, F64X2_REINTERPRET_I16X8, "f64x2.reinterpret_i16x8")               \
-  V(M128, M128, ___, 0,  0x1e8, F64X2_REINTERPRET_I32X4, "f64x2.reinterpret_i32x4")               \
-  V(M128, M128, ___, 0,  0x1e9, F64X2_REINTERPRET_I64X2, "f64x2.reinterpret_i64x2")               \
-  V(M128, M128, ___, 0,  0x1ea, F64X2_REINTERPRET_F32X4, "f64x2.reinterpret_f32x4")               \
-  V(M128, F64, ___, 0,  0x1eb, F64X2_SPLAT, "f64x2.splat")               \
-  V(F64, M128, I32, 0,  0x1ec, F64X2_EXTRACT, "f64x2.extract")               \
-  V(M128, M128, M128, 0,  0x1ed, F64X2_ADD, "f64x2.add")               \
-  V(M128, M128, M128, 0,  0x1ee, F64X2_SUB, "f64x2.sub")               \
-  V(M128, M128, M128, 0,  0x1ef, F64X2_MUL, "f64x2.mul")               \
-  V(M128, M128, ___, 0,  0x1f0, F64X2_NEG, "f64x2.neg")               \
-  V(M128, M128, M128, 0,  0x1f1, F64X2_AND, "f64x2.and")               \
-  V(M128, M128, M128, 0,  0x1f2, F64X2_OR, "f64x2.or")               \
-  V(M128, M128, M128, 0,  0x1f3, F64X2_XOR, "f64x2.xor")               \
-  V(M128, M128, ___, 0,  0x1f4, F64X2_NOT, "f64x2.not")               \
-  V(B2, M128, M128, 0,  0x1f5, F64X2_EQ, "f64x2.eq")               \
-  V(B2, M128, M128, 0,  0x1f6, F64X2_NE, "f64x2.ne")               \
-  V(B2, M128, M128, 0,  0x1f7, F64X2_LT, "f64x2.lt")               \
-  V(B2, M128, M128, 0,  0x1f8, F64X2_LE, "f64x2.le")               \
-  V(B2, M128, M128, 0,  0x1f9, F64X2_GT, "f64x2.gt")               \
-  V(B2, M128, M128, 0,  0x1fa, F64X2_GE, "f64x2.ge")               \
-  V(M128, I32, ___, 2,  0x1fb, F64X2_LOAD, "f64x2.load")               \
-  V(___, I32, M128, 2,  0x1fc, F64X2_STORE, "f64x2.store")               \
-  V(M128, M128, ___, 0,  0x1fd, F64X2_ABS, "f64x2.abs")               \
-  V(M128, M128, M128, 0,  0x1fe, F64X2_MIN, "f64x2.min")               \
-  V(M128, M128, M128, 0,  0x1ff, F64X2_MAX, "f64x2.max")               \
-  V(M128, M128, M128, 0,  0x200, F64X2_DIV, "f64x2.div")               \
-  V(M128, M128, ___, 0,  0x201, F64X2_SQRT, "f64x2.sqrt")               \
-  V(M128, M128, ___, 0,  0x202, F64X2_RCP, "f64x2.rcp")               \
-  V(M128, M128, ___, 0,  0x203, F64X2_RSQRT, "f64x2.rsqrt")               \
-  V(M128, M128, ___, 0,  0x204, F64X2_CONVERT_S, "f64x2.convert_s")               \
-  V(M128, M128, ___, 0,  0x205, F64X2_CONVERT_U, "f64x2.convert_u")         \
-  V(M128, M128, ___, 2,  0x206, I64X2_SWIZZLE, "i64x2.swizzle")               \
-  V(M128, M128, ___, 2,  0x207, I64X2_SHUFFLE, "i64x2.shuffle")               \
-  V(M128, M128, M128, 0,  0x208, I64X2_SELECT, "i64x2.select")               \
-  V(M128, I32, I32, 0,  0x209, I64X2_REPLACE, "i64x2.replace")               \
-  V(M128, M128, ___, 4,  0x20a, I32X4_SWIZZLE, "i32x4.swizzle")               \
-  V(M128, M128, ___, 4,  0x20b, I32X4_SHUFFLE, "i32x4.shuffle")               \
-  V(M128, M128, M128, 0,  0x20c, I32X4_SELECT, "i32x4.select")               \
-  V(M128, I32, I32, 0,  0x20d, I32X4_REPLACE, "i32x4.replace")               \
-  V(M128, M128, ___, 8,  0x20e, I16X8_SWIZZLE, "i16x8.swizzle")               \
-  V(M128, M128, ___, 8,  0x20f, I16X8_SHUFFLE, "i16x8.shuffle")               \
-  V(M128, M128, M128, 0,  0x210, I16X8_SELECT, "i16x8.select")               \
-  V(M128, I32, I32, 0,  0x211, I16X8_REPLACE, "i16x8.replace")               \
-  V(M128, M128, ___, 16,  0x212, I8X16_SWIZZLE, "i8x16.swizzle")               \
-  V(M128, M128, ___, 16,  0x213, I8X16_SHUFFLE, "i8x16.shuffle")               \
-  V(M128, M128, M128, 0,  0x214, I8X16_SELECT, "i8x16.select")               \
-  V(M128, I32, I32, 0,  0x215, I8X16_REPLACE, "i8x16.replace")               \
-  V(B2, B2, ___, 2,  0x216, B64X2_SWIZZLE, "b64x2.swizzle")               \
-  V(B2, B2, ___, 2,  0x217, B64X2_SHUFFLE, "b64x2.shuffle")               \
-  V(B2, B2, B2, 0,  0x218, B64X2_SELECT, "b64x2.select")               \
-  V(B2, I32, I32, 0,  0x219, B64X2_REPLACE, "b64x2.replace")               \
-  V(B4, B4, ___, 4,  0x21a, B32X4_SWIZZLE, "b32x4.swizzle")               \
-  V(B4, B4, ___, 4,  0x21b, B32X4_SHUFFLE, "b32x4.shuffle")               \
-  V(B4, B4, B4, 0,  0x21c, B32X4_SELECT, "b32x4.select")               \
-  V(B4, I32, I32, 0,  0x21d, B32X4_REPLACE, "b32x4.replace")               \
-  V(B8, B8, ___, 8,  0x21e, B16X8_SWIZZLE, "b16x8.swizzle")               \
-  V(B8, B8, ___, 8,  0x21f, B16X8_SHUFFLE, "b16x8.shuffle")               \
-  V(B8, B8, B8, 0,  0x220, B16X8_SELECT, "b16x8.select")               \
-  V(B8, I32, I32, 0,  0x221, B16X8_REPLACE, "b16x8.replace")               \
-  V(B16, B16, ___, 16,  0x222, B8X16_SWIZZLE, "b8x16.swizzle")               \
-  V(B16, B16, ___, 16,  0x223, B8X16_SHUFFLE, "b8x16.shuffle")               \
-  V(B16, B16, B16, 0,  0x224, B8X16_SELECT, "b8x16.select")               \
-  V(B16, I32, I32, 0,  0x225, B8X16_REPLACE, "b8x16.replace")               \
-  V(M128, M128, ___, 2,  0x226, F64X2_SWIZZLE, "f64x2.swizzle")               \
-  V(M128, M128, ___, 2,  0x227, F64X2_SHUFFLE, "f64x2.shuffle")               \
-  V(M128, M128, M128, 0,  0x228, F64X2_SELECT, "f64x2.select")               \
-  V(M128, I32, F64, 0,  0x229, F64X2_REPLACE, "f64x2.replace")               \
-  V(M128, M128, ___, 4,  0x22a, F32X4_SWIZZLE, "f32x4.swizzle")               \
-  V(M128, M128, ___, 4,  0x22b, F32X4_SHUFFLE, "f32x4.shuffle")               \
-  V(M128, M128, M128, 0,  0x22c, F32X4_SELECT, "f32x4.select")               \
-  V(M128, I32, F32, 0,  0x22d, F32X4_REPLACE, "f32x4.replace")
+  V(___, ___, ___, 3,  0x100, M128_CONST, "m128.const") \
+  V(___, ___, ___, 3,  0x101, M128_LOAD, "m128.load") \
+  V(___, ___, ___, 3,  0x102, M128_STORE, "m128.store") \
+  V(M128, I32, ___, 0,  0x103, I8X16_SPLAT, "i8x16.splat") \
+  V(M128, I32, ___, 0,  0x104, I16X8_SPLAT, "i16x8.splat") \
+  V(M128, I32, ___, 0,  0x105, I32X4_SPLAT, "i32x4.splat") \
+  V(M128, I64, ___, 0,  0x106, I64X2_SPLAT, "i64x2.splat") \
+  V(M128, F32, ___, 0,  0x107, F32X4_SPLAT, "f32x4.splat") \
+  V(M128, F64, ___, 0,  0x108, F64X2_SPLAT, "f64x2.splat") \
+  V(I32, M128, ___, 16,  0x109, I8X16_EXTRACT_S, "i8x16.extract_s") \
+  V(I32, M128, ___, 16,  0x10a, I8X16_EXTRACT_U, "i8x16.extract_u") \
+  V(I32, M128, ___, 8,  0x10b, I16X8_EXTRACT_S, "i16x8.extract_s") \
+  V(I32, M128, ___, 8,  0x10c, I16X8_EXTRACT_U, "i16x8.extract_u") \
+  V(I32, M128, ___, 4,  0x10d, I32X4_EXTRACT, "i32x4.extract") \
+  V(I64, M128, ___, 2,  0x10e, I64X2_EXTRACT, "i64x2.extract") \
+  V(F32, M128, ___, 4,  0x10f, F32X4_EXTRACT, "f32x4.extract") \
+  V(F64, M128, ___, 2,  0x110, F64X2_EXTRACT, "f64x2.extract") \
+  V(M128, I32, ___, 16,  0x111, I8X16_REPLACE, "i8x16.replace") \
+  V(M128, I32, ___, 8,  0x112, I16X8_REPLACE, "i16x8.replace") \
+  V(M128, I32, ___, 4,  0x113, I32X4_REPLACE, "i32x4.replace") \
+  V(M128, I32, ___, 2,  0x114, I64X2_REPLACE, "i64x2.replace") \
+  V(M128, F32, ___, 4,  0x115, F32X4_REPLACE, "f32x4.replace") \
+  V(M128, F64, ___, 2,  0x116, F64X2_REPLACE, "f64x2.replace") \
+  V(___, ___, ___, 3,  0x117, V8X16_SHUFFLE, "v8x16.shuffle") \
+  V(M128, M128, M128, 0,  0x118, I8X16_ADD, "i8x16.add") \
+  V(M128, M128, M128, 0,  0x119, I16X8_ADD, "i16x8.add") \
+  V(M128, M128, M128, 0,  0x11a, I32X4_ADD, "i32x4.add") \
+  V(M128, M128, M128, 0,  0x11b, I64X2_ADD, "i64x2.add") \
+  V(M128, M128, M128, 0,  0x11c, I8X16_SUB, "i8x16.sub") \
+  V(M128, M128, M128, 0,  0x11d, I16X8_SUB, "i16x8.sub") \
+  V(M128, M128, M128, 0,  0x11e, I32X4_SUB, "i32x4.sub") \
+  V(M128, M128, M128, 0,  0x11f, I64X2_SUB, "i64x2.sub") \
+  V(M128, M128, M128, 0,  0x120, I8X16_MUL, "i8x16.mul") \
+  V(M128, M128, M128, 0,  0x121, I16X8_MUL, "i16x8.mul") \
+  V(M128, M128, M128, 0,  0x122, I32X4_MUL, "i32x4.mul") \
+  V(M128, M128, ___, 0,  0x123, I8X16_NEG, "i8x16.neg") \
+  V(M128, M128, ___, 0,  0x124, I16X8_NEG, "i16x8.neg") \
+  V(M128, M128, ___, 0,  0x125, I32X4_NEG, "i32x4.neg") \
+  V(M128, M128, ___, 0,  0x126, I64X2_NEG, "i64x2.neg") \
+  V(M128, M128, M128, 0,  0x127, I8X16_ADDSATURATE_S, "i8x16.addsaturate_s") \
+  V(M128, M128, M128, 0,  0x128, I8X16_ADDSATURATE_U, "i8x16.addsaturate_u") \
+  V(M128, M128, M128, 0,  0x129, I16X8_ADDSATURATE_S, "i16x8.addsaturate_s") \
+  V(M128, M128, M128, 0,  0x12a, I16X8_ADDSATURATE_U, "i16x8.addsaturate_u") \
+  V(M128, M128, M128, 0,  0x12b, I8X16_SUBSATURATE_S, "i8x16.subsaturate_s") \
+  V(M128, M128, M128, 0,  0x12c, I8X16_SUBSATURATE_U, "i8x16.subsaturate_u") \
+  V(M128, M128, M128, 0,  0x12d, I16X8_SUBSATURATE_S, "i16x8.subsaturate_s") \
+  V(M128, M128, M128, 0,  0x12e, I16X8_SUBSATURATE_U, "i16x8.subsaturate_u") \
+  V(M128, M128, I32, 0,  0x12f, I8X16_SHL, "i8x16.shl") \
+  V(M128, M128, I32, 0,  0x130, I16X8_SHL, "i16x8.shl") \
+  V(M128, M128, I32, 0,  0x131, I32X4_SHL, "i32x4.shl") \
+  V(M128, M128, I32, 0,  0x132, I64X2_SHL, "i64x2.shl") \
+  V(M128, M128, I32, 0,  0x133, I8X16_SHR_S, "i8x16.shr_s") \
+  V(M128, M128, I32, 0,  0x134, I8X16_SHR_U, "i8x16.shr_u") \
+  V(M128, M128, I32, 0,  0x135, I16X8_SHR_S, "i16x8.shr_s") \
+  V(M128, M128, I32, 0,  0x136, I16X8_SHR_U, "i16x8.shr_u") \
+  V(M128, M128, I32, 0,  0x137, I32X4_SHR_S, "i32x4.shr_s") \
+  V(M128, M128, I32, 0,  0x138, I32X4_SHR_U, "i32x4.shr_u") \
+  V(M128, M128, I32, 0,  0x139, I64X2_SHR_S, "i64x2.shr_s") \
+  V(M128, M128, I32, 0,  0x13a, I64X2_SHR_U, "i64x2.shr_u") \
+  V(___, ___, ___, 3,  0x13b, M128_AND, "m128.and") \
+  V(___, ___, ___, 3,  0x13c, M128_OR, "m128.or") \
+  V(___, ___, ___, 3,  0x13d, M128_XOR, "m128.xor") \
+  V(___, ___, ___, 3,  0x13e, M128_NOT, "m128.not") \
+  V(___, ___, ___, 3,  0x13f, M128_BITSELECT, "m128.bitselect") \
+  V(___, ___, ___, 3,  0x140, I8X16_ANY_TRUE, "i8x16.any_true") \
+  V(___, ___, ___, 3,  0x141, I16X8_ANY_TRUE, "i16x8.any_true") \
+  V(___, ___, ___, 3,  0x142, I32X4_ANY_TRUE, "i32x4.any_true") \
+  V(___, ___, ___, 3,  0x143, I64X2_ANY_TRUE, "i64x2.any_true") \
+  V(___, ___, ___, 3,  0x144, I8X16_ALL_TRUE, "i8x16.all_true") \
+  V(___, ___, ___, 3,  0x145, I16X8_ALL_TRUE, "i16x8.all_true") \
+  V(___, ___, ___, 3,  0x146, I32X4_ALL_TRUE, "i32x4.all_true") \
+  V(___, ___, ___, 3,  0x147, I64X2_ALL_TRUE, "i64x2.all_true") \
+  V(M128, M128, M128, 0,  0x148, I8X16_EQ, "i8x16.eq") \
+  V(M128, M128, M128, 0,  0x149, I16X8_EQ, "i16x8.eq") \
+  V(M128, M128, M128, 0,  0x14a, I32X4_EQ, "i32x4.eq") \
+  V(M128, M128, M128, 0,  0x14b, F32X4_EQ, "f32x4.eq") \
+  V(M128, M128, M128, 0,  0x14c, F64X2_EQ, "f64x2.eq") \
+  V(M128, M128, M128, 0,  0x14d, I8X16_NE, "i8x16.ne") \
+  V(M128, M128, M128, 0,  0x14e, I16X8_NE, "i16x8.ne") \
+  V(M128, M128, M128, 0,  0x14f, I32X4_NE, "i32x4.ne") \
+  V(M128, M128, M128, 0,  0x150, F32X4_NE, "f32x4.ne") \
+  V(M128, M128, M128, 0,  0x151, F64X2_NE, "f64x2.ne") \
+  V(M128, M128, M128, 0,  0x152, I8X16_LT_S, "i8x16.lt_s") \
+  V(M128, M128, M128, 0,  0x153, I8X16_LT_U, "i8x16.lt_u") \
+  V(M128, M128, M128, 0,  0x154, I16X8_LT_S, "i16x8.lt_s") \
+  V(M128, M128, M128, 0,  0x155, I16X8_LT_U, "i16x8.lt_u") \
+  V(M128, M128, M128, 0,  0x156, I32X4_LT_S, "i32x4.lt_s") \
+  V(M128, M128, M128, 0,  0x157, I32X4_LT_U, "i32x4.lt_u") \
+  V(M128, M128, M128, 0,  0x158, F32X4_LT, "f32x4.lt") \
+  V(M128, M128, M128, 0,  0x159, F64X2_LT, "f64x2.lt") \
+  V(M128, M128, M128, 0,  0x15a, I8X16_LE_S, "i8x16.le_s") \
+  V(M128, M128, M128, 0,  0x15b, I8X16_LE_U, "i8x16.le_u") \
+  V(M128, M128, M128, 0,  0x15c, I16X8_LE_S, "i16x8.le_s") \
+  V(M128, M128, M128, 0,  0x15d, I16X8_LE_U, "i16x8.le_u") \
+  V(M128, M128, M128, 0,  0x15e, I32X4_LE_S, "i32x4.le_s") \
+  V(M128, M128, M128, 0,  0x15f, I32X4_LE_U, "i32x4.le_u") \
+  V(M128, M128, M128, 0,  0x160, F32X4_LE, "f32x4.le") \
+  V(M128, M128, M128, 0,  0x161, F64X2_LE, "f64x2.le") \
+  V(M128, M128, M128, 0,  0x162, I8X16_GT_S, "i8x16.gt_s") \
+  V(M128, M128, M128, 0,  0x163, I8X16_GT_U, "i8x16.gt_u") \
+  V(M128, M128, M128, 0,  0x164, I16X8_GT_S, "i16x8.gt_s") \
+  V(M128, M128, M128, 0,  0x165, I16X8_GT_U, "i16x8.gt_u") \
+  V(M128, M128, M128, 0,  0x166, I32X4_GT_S, "i32x4.gt_s") \
+  V(M128, M128, M128, 0,  0x167, I32X4_GT_U, "i32x4.gt_u") \
+  V(M128, M128, M128, 0,  0x168, F32X4_GT, "f32x4.gt") \
+  V(M128, M128, M128, 0,  0x169, F64X2_GT, "f64x2.gt") \
+  V(M128, M128, M128, 0,  0x16a, I8X16_GE_S, "i8x16.ge_s") \
+  V(M128, M128, M128, 0,  0x16b, I8X16_GE_U, "i8x16.ge_u") \
+  V(M128, M128, M128, 0,  0x16c, I16X8_GE_S, "i16x8.ge_s") \
+  V(M128, M128, M128, 0,  0x16d, I16X8_GE_U, "i16x8.ge_u") \
+  V(M128, M128, M128, 0,  0x16e, I32X4_GE_S, "i32x4.ge_s") \
+  V(M128, M128, M128, 0,  0x16f, I32X4_GE_U, "i32x4.ge_u") \
+  V(M128, M128, M128, 0,  0x170, F32X4_GE, "f32x4.ge") \
+  V(M128, M128, M128, 0,  0x171, F64X2_GE, "f64x2.ge") \
+  V(M128, M128, ___, 0,  0x172, F32X4_NEG, "f32x4.neg") \
+  V(M128, M128, ___, 0,  0x173, F64X2_NEG, "f64x2.neg") \
+  V(M128, M128, ___, 0,  0x174, F32X4_ABS, "f32x4.abs") \
+  V(M128, M128, ___, 0,  0x175, F64X2_ABS, "f64x2.abs") \
+  V(M128, M128, M128, 0,  0x176, F32X4_MIN, "f32x4.min") \
+  V(M128, M128, M128, 0,  0x177, F64X2_MIN, "f64x2.min") \
+  V(M128, M128, M128, 0,  0x178, F32X4_MAX, "f32x4.max") \
+  V(M128, M128, M128, 0,  0x179, F64X2_MAX, "f64x2.max") \
+  V(M128, M128, M128, 0,  0x17a, F32X4_ADD, "f32x4.add") \
+  V(M128, M128, M128, 0,  0x17b, F64X2_ADD, "f64x2.add") \
+  V(M128, M128, M128, 0,  0x17c, F32X4_SUB, "f32x4.sub") \
+  V(M128, M128, M128, 0,  0x17d, F64X2_SUB, "f64x2.sub") \
+  V(M128, M128, M128, 0,  0x17e, F32X4_DIV, "f32x4.div") \
+  V(M128, M128, M128, 0,  0x17f, F64X2_DIV, "f64x2.div") \
+  V(M128, M128, M128, 0,  0x180, F32X4_MUL, "f32x4.mul") \
+  V(M128, M128, M128, 0,  0x181, F64X2_MUL, "f64x2.mul") \
+  V(M128, M128, ___, 0,  0x182, F32X4_SQRT, "f32x4.sqrt") \
+  V(M128, M128, ___, 0,  0x183, F64X2_SQRT, "f64x2.sqrt") \
+  V(___, ___, ___, 3,  0x184, F32X4_CONVERT_S, "f32x4.convert_s") \
+  V(___, ___, ___, 3,  0x185, F32X4_CONVERT_U, "f32x4.convert_u") \
+  V(___, ___, ___, 3,  0x186, F64X2_CONVERT_S, "f64x2.convert_s") \
+  V(___, ___, ___, 3,  0x187, F64X2_CONVERT_U, "f64x2.convert_u") \
+  V(___, ___, ___, 3,  0x188, I32X4_TRUNC_S, "i32x4.trunc_s") \
+  V(___, ___, ___, 3,  0x189, I32X4_TRUNC_U, "i32x4.trunc_u") \
+  V(___, ___, ___, 3,  0x18a, I64X2_TRUNC_S, "i64x2.trunc_s") \
+  V(___, ___, ___, 3,  0x18b, I64X2_TRUNC_U, "i64x2.trunc_u")
 
 typedef enum WasmOpcode {
 #define V(rtype, type1, type2, mem_size, code, NAME, text) \
@@ -685,6 +523,7 @@ typedef enum WasmOpcode {
   WASM_FOREACH_OPCODE(V)
 #undef V
   WASM_EXTENDED_START = 256,
+  WASM_SIMD_START =   0xFD,
   WASM_EXTENDED_START2 = 512,
   WASM_HOST_START = 720,
   WASM_EXTENDED_OPCODE = 6,
@@ -756,18 +595,9 @@ static WASM_INLINE WasmOpcode get_simd_const_opcode(WasmType type) {
     uint32_t opcode = 0;
     switch (type) {
     case WASM_TYPE_M128:
-        opcode = WASM_OPCODE_F32X4_CONST;
+        opcode = WASM_OPCODE_M128_CONST;
         break;
-    case WASM_TYPE_B4:
-    	opcode = WASM_OPCODE_B32X4_CONST;
-    	break;
-    case WASM_TYPE_B8:
-    	opcode = WASM_OPCODE_B16X8_CONST;
-    	break;
-    case WASM_TYPE_B16:
-    	opcode = WASM_OPCODE_B8X16_CONST;
-    	break;
-     default:
+    default:
         assert (0);
     }
 
@@ -818,14 +648,10 @@ static WASM_INLINE const char* wasm_get_type_name(WasmType type) {
     case WASM_TYPE_F32: return "f32";
     case WASM_TYPE_F64: return "f64";
     case WASM_TYPE_M128: return "m128";
-    case WASM_TYPE_B4: return "b4";
-    case WASM_TYPE_B8: return "b8";
-    case WASM_TYPE_B16: return "b16";
     case WASM_TYPE_ANYFUNC: return "anyfunc";
     case WASM_TYPE_FUNC: return "func";
     case WASM_TYPE_VOID: return "void";
     case WASM_TYPE_ANY: return "any";
-
     default: return NULL;
   }
 }

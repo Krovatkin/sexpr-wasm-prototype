@@ -85,6 +85,7 @@ typedef enum WasmExprType {
   WASM_EXPR_TYPE_TEE_LOCAL,
   WASM_EXPR_TYPE_UNARY,
   WASM_EXPR_TYPE_SIMD_BUILD,
+  WASM_EXPR_TYPE_SIMD_EXTRACT,
   WASM_EXPR_TYPE_SIMD_SWIZZLE,
   WASM_EXPR_TYPE_SIMD_SHUFFLE,
   WASM_EXPR_TYPE_SIMD_REPLACE,
@@ -115,7 +116,7 @@ struct WasmExpr {
     struct { WasmVar var; } get_global, set_global;
     struct { WasmVar var; } get_local, set_local, tee_local;
     struct { WasmBlock true_; struct WasmExpr* false_; } if_;
-    struct { WasmOpcode opcode; uint32_t align; uint64_t offset; } load, store;
+    struct { WasmOpcode opcode; uint32_t align; uint64_t offset; } load, store, extract;
   };
 };
 
@@ -443,6 +444,7 @@ WasmExpr* wasm_new_unreachable_expr(struct WasmAllocator*);
 WasmExpr* wasm_new_simd_build_expr(struct WasmAllocator*);
 WasmExpr* wasm_new_simd_swizzle_expr(struct WasmAllocator*);
 WasmExpr* wasm_new_simd_shuffle_expr(struct WasmAllocator*);
+WasmExpr* wasm_new_simd_extract_expr(struct WasmAllocator*);
 WasmExpr* wasm_new_simd_replace_expr(struct WasmAllocator*);
 WasmExpr* wasm_new_simd_select_expr(struct WasmAllocator*);
 

@@ -87,6 +87,7 @@ for t in types:
       #print("V(B{}, {}, {}, {},  {}, {}_{}, \"{}.{}\")               \\".format(size, t.upper(), t.upper(), 0, hex(start_opcode), t.upper(), op.upper(), t, op))
     start_opcode += 1
     print("V({}, {}, {}, {},  {}, {}_SWIZZLE, \"{}.swizzle\")               \\".format(t.upper(), t.upper(), "___", size, hex(start_opcode), t.upper(), t))  
+    print("WASM_MISC_OPCODE({},{}, Limit, false)".format(op[0], hex(start+i)))
     start_opcode += 1
     print("V({}, {}, {}, {},  {}, {}_SHUFFLE, \"{}.shuffle\")               \\".format(t.upper(), t.upper(), "___", size, hex(start_opcode), t.upper(), t))  
     start_opcode += 1

@@ -242,10 +242,6 @@ int wasm_ast_lexer_lex(WASM_AST_PARSER_STYPE* lval,
       <i> "i32x4"               { TYPE(M128); RETURN(VALUE_TYPE); }
       <i> "i16x8"               { TYPE(M128); RETURN(VALUE_TYPE); }
       <i> "i8x16"               { TYPE(M128); RETURN(VALUE_TYPE); }
-      <i> "b32x4"               { TYPE(B4); RETURN(VALUE_TYPE); }
-      <i> "b16x8"               { TYPE(B8); RETURN(VALUE_TYPE); }
-      <i> "b8x16"               { TYPE(B16); RETURN(VALUE_TYPE); }
-      <i> "b64x2"               { TYPE(B2); RETURN(VALUE_TYPE); }
       <i> "i64x2"               { TYPE(M128); RETURN(VALUE_TYPE); }
       <i> "f64x2"               { TYPE(M128); RETURN(VALUE_TYPE); }
       <i> "anyfunc"             { RETURN(ANYFUNC); }
@@ -296,6 +292,7 @@ int wasm_ast_lexer_lex(WASM_AST_PARSER_STYPE* lval,
       <i> "i64.store32"         { OPCODE(I64_STORE32); RETURN(STORE); }
       <i> "offset=" nat         { TEXT_AT(7); RETURN(OFFSET_EQ_NAT); }
       <i> "align=" nat          { TEXT_AT(6); RETURN(ALIGN_EQ_NAT); }
+      <i> "lane=" nat           { TEXT_AT(6); RETURN(LANE_EQ_NAT); }
       <i> "i32.const"           { TYPE(I32); RETURN(CONST); }
       <i> "i64.const"           { TYPE(I64); RETURN(CONST); }
       <i> "f32.const"           { TYPE(F32); RETURN(CONST); }
@@ -423,47 +420,9 @@ int wasm_ast_lexer_lex(WASM_AST_PARSER_STYPE* lval,
       <i> "i32.reinterpret/f32" { OPCODE(I32_REINTERPRET_F32); RETURN(CONVERT); }
       <i> "f64.reinterpret/i64" { OPCODE(F64_REINTERPRET_I64); RETURN(CONVERT); }
       <i> "i64.reinterpret/f64" { OPCODE(I64_REINTERPRET_F64); RETURN(CONVERT); }
-
-      <i> "b8x16.splat"         { OPCODE(B8X16_SPLAT); RETURN(UNARY); }
-      <i> "b8x16.extractLane"         { OPCODE(B8X16_EXTRACT); RETURN(BINARY); }
-      <i> "b8x16.and"         { OPCODE(B8X16_AND); RETURN(BINARY); }
-      <i> "b8x16.or"         { OPCODE(B8X16_OR); RETURN(BINARY); }
-      <i> "b8x16.xor"         { OPCODE(B8X16_XOR); RETURN(BINARY); }
-      <i> "b8x16.not"         { OPCODE(B8X16_NOT); RETURN(UNARY); }
-      <i> "b8x16.anytrue"         { OPCODE(B8X16_ANYTRUE); RETURN(UNARY); }
-      <i> "b8x16.alltrue"         { OPCODE(B8X16_ALLTRUE); RETURN(UNARY); }
-      <i> "b16x8.splat"         { OPCODE(B16X8_SPLAT); RETURN(UNARY); }
-      <i> "b16x8.extractLane"         { OPCODE(B16X8_EXTRACT); RETURN(BINARY); }
-      <i> "b16x8.and"         { OPCODE(B16X8_AND); RETURN(BINARY); }
-      <i> "b16x8.or"         { OPCODE(B16X8_OR); RETURN(BINARY); }
-      <i> "b16x8.xor"         { OPCODE(B16X8_XOR); RETURN(BINARY); }
-      <i> "b16x8.not"         { OPCODE(B16X8_NOT); RETURN(UNARY); }
-      <i> "b16x8.anytrue"         { OPCODE(B16X8_ANYTRUE); RETURN(UNARY); }
-      <i> "b16x8.alltrue"         { OPCODE(B16X8_ALLTRUE); RETURN(UNARY); }
-      <i> "b32x4.splat"         { OPCODE(B32X4_SPLAT); RETURN(UNARY); }
-      <i> "b32x4.extractLane"         { OPCODE(B32X4_EXTRACT); RETURN(BINARY); }
-      <i> "b32x4.and"         { OPCODE(B32X4_AND); RETURN(BINARY); }
-      <i> "b32x4.or"         { OPCODE(B32X4_OR); RETURN(BINARY); }
-      <i> "b32x4.xor"         { OPCODE(B32X4_XOR); RETURN(BINARY); }
-      <i> "b32x4.not"         { OPCODE(B32X4_NOT); RETURN(UNARY); }
-      <i> "b32x4.anytrue"         { OPCODE(B32X4_ANYTRUE); RETURN(UNARY); }
-      <i> "b32x4.alltrue"         { OPCODE(B32X4_ALLTRUE); RETURN(UNARY); }
-      <i> "b64x2.splat"         { OPCODE(B64X2_SPLAT); RETURN(UNARY); }
-      <i> "b64x2.extractLane"         { OPCODE(B64X2_EXTRACT); RETURN(BINARY); }
-      <i> "b64x2.and"         { OPCODE(B64X2_AND); RETURN(BINARY); }
-      <i> "b64x2.or"         { OPCODE(B64X2_OR); RETURN(BINARY); }
-      <i> "b64x2.xor"         { OPCODE(B64X2_XOR); RETURN(BINARY); }
-      <i> "b64x2.not"         { OPCODE(B64X2_NOT); RETURN(UNARY); }
-      <i> "b64x2.anytrue"         { OPCODE(B64X2_ANYTRUE); RETURN(UNARY); }
-      <i> "b64x2.alltrue"         { OPCODE(B64X2_ALLTRUE); RETURN(UNARY); }
-      <i> "i8x16.reinterpret_i16x8"         { OPCODE(I8X16_REINTERPRET_I16X8); RETURN(UNARY); }
-      <i> "i8x16.reinterpret_i32x4"         { OPCODE(I8X16_REINTERPRET_I32X4); RETURN(UNARY); }
-      <i> "i8x16.reinterpret_i64x2"         { OPCODE(I8X16_REINTERPRET_I64X2); RETURN(UNARY); }
-      <i> "i8x16.reinterpret_f32x4"         { OPCODE(I8X16_REINTERPRET_F32X4); RETURN(UNARY); }
-      <i> "i8x16.reinterpret_f64x2"         { OPCODE(I8X16_REINTERPRET_F64X2); RETURN(UNARY); }
       <i> "i8x16.splat"         { OPCODE(I8X16_SPLAT); RETURN(UNARY); }
-      <i> "i8x16.extractLane_s"         { OPCODE(I8X16_EXTRACT_S); RETURN(BINARY); }
-      <i> "i8x16.extractLane_u"         { OPCODE(I8X16_EXTRACT_U); RETURN(BINARY); }
+      <i> "i8x16.extract_lane_s"         { OPCODE(I8X16_EXTRACT_S); RETURN(SIMD_EXTRACT); }
+      <i> "i8x16.extract_lane_u"         { OPCODE(I8X16_EXTRACT_U); RETURN(SIMD_EXTRACT); }
       <i> "i8x16.add"         { OPCODE(I8X16_ADD); RETURN(BINARY); }
       <i> "i8x16.sub"         { OPCODE(I8X16_SUB); RETURN(BINARY); }
       <i> "i8x16.mul"         { OPCODE(I8X16_MUL); RETURN(BINARY); }
@@ -475,10 +434,6 @@ int wasm_ast_lexer_lex(WASM_AST_PARSER_STYPE* lval,
       <i> "i8x16.shl"         { OPCODE(I8X16_SHL); RETURN(BINARY); }
       <i> "i8x16.shr_s"         { OPCODE(I8X16_SHR_S); RETURN(BINARY); }
       <i> "i8x16.shr_u"         { OPCODE(I8X16_SHR_U); RETURN(BINARY); }
-      <i> "i8x16.and"         { OPCODE(I8X16_AND); RETURN(BINARY); }
-      <i> "i8x16.or"         { OPCODE(I8X16_OR); RETURN(BINARY); }
-      <i> "i8x16.xor"         { OPCODE(I8X16_XOR); RETURN(BINARY); }
-      <i> "i8x16.not"         { OPCODE(I8X16_NOT); RETURN(UNARY); }
       <i> "i8x16.eq"         { OPCODE(I8X16_EQ); RETURN(BINARY); }
       <i> "i8x16.ne"         { OPCODE(I8X16_NE); RETURN(BINARY); }
       <i> "i8x16.lt_s"         { OPCODE(I8X16_LT_S); RETURN(BINARY); }
@@ -489,16 +444,9 @@ int wasm_ast_lexer_lex(WASM_AST_PARSER_STYPE* lval,
       <i> "i8x16.gt_u"         { OPCODE(I8X16_GT_U); RETURN(BINARY); }
       <i> "i8x16.ge_s"         { OPCODE(I8X16_GE_S); RETURN(BINARY); }
       <i> "i8x16.ge_u"         { OPCODE(I8X16_GE_U); RETURN(BINARY); }
-      <i> "i8x16.load"         { OPCODE(I8X16_LOAD); RETURN(LOAD); }
-      <i> "i8x16.store"         { OPCODE(I8X16_STORE); RETURN(STORE); }
-      <i> "i16x8.reinterpret_i8x16"         { OPCODE(I16X8_REINTERPRET_I8X16); RETURN(UNARY); }
-      <i> "i16x8.reinterpret_i32x4"         { OPCODE(I16X8_REINTERPRET_I32X4); RETURN(UNARY); }
-      <i> "i16x8.reinterpret_i64x2"         { OPCODE(I16X8_REINTERPRET_I64X2); RETURN(UNARY); }
-      <i> "i16x8.reinterpret_f32x4"         { OPCODE(I16X8_REINTERPRET_F32X4); RETURN(UNARY); }
-      <i> "i16x8.reinterpret_f64x2"         { OPCODE(I16X8_REINTERPRET_F64X2); RETURN(UNARY); }
       <i> "i16x8.splat"         { OPCODE(I16X8_SPLAT); RETURN(UNARY); }
-      <i> "i16x8.extractLane_s"         { OPCODE(I16X8_EXTRACT_S); RETURN(BINARY); }
-      <i> "i16x8.extractLane_u"         { OPCODE(I16X8_EXTRACT_U); RETURN(BINARY); }
+      <i> "i16x8.extract_lane_s"         { OPCODE(I16X8_EXTRACT_S); RETURN(SIMD_EXTRACT); }
+      <i> "i16x8.extract_lane_u"         { OPCODE(I16X8_EXTRACT_U); RETURN(SIMD_EXTRACT); }
       <i> "i16x8.add"         { OPCODE(I16X8_ADD); RETURN(BINARY); }
       <i> "i16x8.sub"         { OPCODE(I16X8_SUB); RETURN(BINARY); }
       <i> "i16x8.mul"         { OPCODE(I16X8_MUL); RETURN(BINARY); }
@@ -510,10 +458,6 @@ int wasm_ast_lexer_lex(WASM_AST_PARSER_STYPE* lval,
       <i> "i16x8.shl"         { OPCODE(I16X8_SHL); RETURN(BINARY); }
       <i> "i16x8.shr_s"         { OPCODE(I16X8_SHR_S); RETURN(BINARY); }
       <i> "i16x8.shr_u"         { OPCODE(I16X8_SHR_U); RETURN(BINARY); }
-      <i> "i16x8.and"         { OPCODE(I16X8_AND); RETURN(BINARY); }
-      <i> "i16x8.or"         { OPCODE(I16X8_OR); RETURN(BINARY); }
-      <i> "i16x8.xor"         { OPCODE(I16X8_XOR); RETURN(BINARY); }
-      <i> "i16x8.not"         { OPCODE(I16X8_NOT); RETURN(UNARY); }
       <i> "i16x8.eq"         { OPCODE(I16X8_EQ); RETURN(BINARY); }
       <i> "i16x8.ne"         { OPCODE(I16X8_NE); RETURN(BINARY); }
       <i> "i16x8.lt_s"         { OPCODE(I16X8_LT_S); RETURN(BINARY); }
@@ -524,15 +468,8 @@ int wasm_ast_lexer_lex(WASM_AST_PARSER_STYPE* lval,
       <i> "i16x8.gt_u"         { OPCODE(I16X8_GT_U); RETURN(BINARY); }
       <i> "i16x8.ge_s"         { OPCODE(I16X8_GE_S); RETURN(BINARY); }
       <i> "i16x8.ge_u"         { OPCODE(I16X8_GE_U); RETURN(BINARY); }
-      <i> "i16x8.load"         { OPCODE(I16X8_LOAD); RETURN(LOAD); }
-      <i> "i16x8.store"         { OPCODE(I16X8_STORE); RETURN(STORE); }
-      <i> "i32x4.reinterpret_i8x16"         { OPCODE(I32X4_REINTERPRET_I8X16); RETURN(UNARY); }
-      <i> "i32x4.reinterpret_i16x8"         { OPCODE(I32X4_REINTERPRET_I16X8); RETURN(UNARY); }
-      <i> "i32x4.reinterpret_i64x2"         { OPCODE(I32X4_REINTERPRET_I64X2); RETURN(UNARY); }
-      <i> "i32x4.reinterpret_f32x4"         { OPCODE(I32X4_REINTERPRET_F32X4); RETURN(UNARY); }
-      <i> "i32x4.reinterpret_f64x2"         { OPCODE(I32X4_REINTERPRET_F64X2); RETURN(UNARY); }
       <i> "i32x4.splat"         { OPCODE(I32X4_SPLAT); RETURN(UNARY); }
-      <i> "i32x4.extractLane"         { OPCODE(I32X4_EXTRACT); RETURN(BINARY); }
+      <i> "i32x4.extract_lane"         { OPCODE(I32X4_EXTRACT); RETURN(SIMD_EXTRACT); }
       <i> "i32x4.add"         { OPCODE(I32X4_ADD); RETURN(BINARY); }
       <i> "i32x4.sub"         { OPCODE(I32X4_SUB); RETURN(BINARY); }
       <i> "i32x4.mul"         { OPCODE(I32X4_MUL); RETURN(BINARY); }
@@ -540,10 +477,6 @@ int wasm_ast_lexer_lex(WASM_AST_PARSER_STYPE* lval,
       <i> "i32x4.shl"         { OPCODE(I32X4_SHL); RETURN(BINARY); }
       <i> "i32x4.shr_s"         { OPCODE(I32X4_SHR_S); RETURN(BINARY); }
       <i> "i32x4.shr_u"         { OPCODE(I32X4_SHR_U); RETURN(BINARY); }
-      <i> "i32x4.and"         { OPCODE(I32X4_AND); RETURN(BINARY); }
-      <i> "i32x4.or"         { OPCODE(I32X4_OR); RETURN(BINARY); }
-      <i> "i32x4.xor"         { OPCODE(I32X4_XOR); RETURN(BINARY); }
-      <i> "i32x4.not"         { OPCODE(I32X4_NOT); RETURN(UNARY); }
       <i> "i32x4.eq"         { OPCODE(I32X4_EQ); RETURN(BINARY); }
       <i> "i32x4.ne"         { OPCODE(I32X4_NE); RETURN(BINARY); }
       <i> "i32x4.lt_s"         { OPCODE(I32X4_LT_S); RETURN(BINARY); }
@@ -554,150 +487,67 @@ int wasm_ast_lexer_lex(WASM_AST_PARSER_STYPE* lval,
       <i> "i32x4.gt_u"         { OPCODE(I32X4_GT_U); RETURN(BINARY); }
       <i> "i32x4.ge_s"         { OPCODE(I32X4_GE_S); RETURN(BINARY); }
       <i> "i32x4.ge_u"         { OPCODE(I32X4_GE_U); RETURN(BINARY); }
-      <i> "i32x4.load"         { OPCODE(I32X4_LOAD); RETURN(LOAD); }
-      <i> "i32x4.store"         { OPCODE(I32X4_STORE); RETURN(STORE); }
-      <i> "i32x4.load1"         { OPCODE(I32X4_LOAD1); RETURN(LOAD); }
-      <i> "i32x4.load2"         { OPCODE(I32X4_LOAD2); RETURN(LOAD); }
-      <i> "i32x4.load3"         { OPCODE(I32X4_LOAD3); RETURN(LOAD); }
-      <i> "i32x4.store1"         { OPCODE(I32X4_STORE1); RETURN(STORE); }
-      <i> "i32x4.store2"         { OPCODE(I32X4_STORE2); RETURN(STORE); }
-      <i> "i32x4.store3"         { OPCODE(I32X4_STORE3); RETURN(STORE); }
       <i> "i32x4.trunc_s"         { OPCODE(I32X4_TRUNC_S); RETURN(UNARY); }
       <i> "i32x4.trunc_u"         { OPCODE(I32X4_TRUNC_U); RETURN(UNARY); }
-      <i> "i64x2.reinterpret_i8x16"         { OPCODE(I64X2_REINTERPRET_I8X16); RETURN(UNARY); }
-      <i> "i64x2.reinterpret_i16x8"         { OPCODE(I64X2_REINTERPRET_I16X8); RETURN(UNARY); }
-      <i> "i64x2.reinterpret_i32x4"         { OPCODE(I64X2_REINTERPRET_I32X4); RETURN(UNARY); }
-      <i> "i64x2.reinterpret_f32x4"         { OPCODE(I64X2_REINTERPRET_F32X4); RETURN(UNARY); }
-      <i> "i64x2.reinterpret_f64x2"         { OPCODE(I64X2_REINTERPRET_F64X2); RETURN(UNARY); }
       <i> "i64x2.splat"         { OPCODE(I64X2_SPLAT); RETURN(UNARY); }
-      <i> "i64x2.extractLane"         { OPCODE(I64X2_EXTRACT); RETURN(BINARY); }
+      <i> "i64x2.extract_lane"         { OPCODE(I64X2_EXTRACT); RETURN(SIMD_EXTRACT); }
       <i> "i64x2.add"         { OPCODE(I64X2_ADD); RETURN(BINARY); }
       <i> "i64x2.sub"         { OPCODE(I64X2_SUB); RETURN(BINARY); }
-      <i> "i64x2.mul"         { OPCODE(I64X2_MUL); RETURN(BINARY); }
       <i> "i64x2.neg"         { OPCODE(I64X2_NEG); RETURN(UNARY); }
       <i> "i64x2.shl"         { OPCODE(I64X2_SHL); RETURN(BINARY); }
       <i> "i64x2.shr_s"         { OPCODE(I64X2_SHR_S); RETURN(BINARY); }
       <i> "i64x2.shr_u"         { OPCODE(I64X2_SHR_U); RETURN(BINARY); }
-      <i> "i64x2.and"         { OPCODE(I64X2_AND); RETURN(BINARY); }
-      <i> "i64x2.or"         { OPCODE(I64X2_OR); RETURN(BINARY); }
-      <i> "i64x2.xor"         { OPCODE(I64X2_XOR); RETURN(BINARY); }
-      <i> "i64x2.not"         { OPCODE(I64X2_NOT); RETURN(UNARY); }
-      <i> "i64x2.eq"         { OPCODE(I64X2_EQ); RETURN(BINARY); }
-      <i> "i64x2.ne"         { OPCODE(I64X2_NE); RETURN(BINARY); }
-      <i> "i64x2.lt_s"         { OPCODE(I64X2_LT_S); RETURN(BINARY); }
-      <i> "i64x2.lt_u"         { OPCODE(I64X2_LT_U); RETURN(BINARY); }
-      <i> "i64x2.le_s"         { OPCODE(I64X2_LE_S); RETURN(BINARY); }
-      <i> "i64x2.le_u"         { OPCODE(I64X2_LE_U); RETURN(BINARY); }
-      <i> "i64x2.gt_s"         { OPCODE(I64X2_GT_S); RETURN(BINARY); }
-      <i> "i64x2.gt_u"         { OPCODE(I64X2_GT_U); RETURN(BINARY); }
-      <i> "i64x2.ge_s"         { OPCODE(I64X2_GE_S); RETURN(BINARY); }
-      <i> "i64x2.ge_u"         { OPCODE(I64X2_GE_U); RETURN(BINARY); }
-      <i> "i64x2.load"         { OPCODE(I64X2_LOAD); RETURN(LOAD); }
-      <i> "i64x2.store"         { OPCODE(I64X2_STORE); RETURN(STORE); }
       <i> "i64x2.trunc_s"         { OPCODE(I64X2_TRUNC_S); RETURN(UNARY); }
       <i> "i64x2.trunc_u"         { OPCODE(I64X2_TRUNC_U); RETURN(UNARY); }
-      <i> "f32x4.reinterpret_i8x16"         { OPCODE(F32X4_REINTERPRET_I8X16); RETURN(UNARY); }
-      <i> "f32x4.reinterpret_i16x8"         { OPCODE(F32X4_REINTERPRET_I16X8); RETURN(UNARY); }
-      <i> "f32x4.reinterpret_i32x4"         { OPCODE(F32X4_REINTERPRET_I32X4); RETURN(UNARY); }
-      <i> "f32x4.reinterpret_i64x2"         { OPCODE(F32X4_REINTERPRET_I64X2); RETURN(UNARY); }
-      <i> "f32x4.reinterpret_f64x2"         { OPCODE(F32X4_REINTERPRET_F64X2); RETURN(UNARY); }
       <i> "f32x4.splat"         { OPCODE(F32X4_SPLAT); RETURN(UNARY); }
-      <i> "f32x4.extractLane"         { OPCODE(F32X4_EXTRACT); RETURN(BINARY); }
+      <i> "f32x4.extract_lane"         { OPCODE(F32X4_EXTRACT); RETURN(SIMD_EXTRACT); }
       <i> "f32x4.add"         { OPCODE(F32X4_ADD); RETURN(BINARY); }
       <i> "f32x4.sub"         { OPCODE(F32X4_SUB); RETURN(BINARY); }
       <i> "f32x4.mul"         { OPCODE(F32X4_MUL); RETURN(BINARY); }
       <i> "f32x4.neg"         { OPCODE(F32X4_NEG); RETURN(UNARY); }
-      <i> "f32x4.and"         { OPCODE(F32X4_AND); RETURN(BINARY); }
-      <i> "f32x4.or"         { OPCODE(F32X4_OR); RETURN(BINARY); }
-      <i> "f32x4.xor"         { OPCODE(F32X4_XOR); RETURN(BINARY); }
-      <i> "f32x4.not"         { OPCODE(F32X4_NOT); RETURN(UNARY); }
+      <i> "m128.and"         { OPCODE(M128_AND); RETURN(BINARY); }
+      <i> "m128.or"         { OPCODE(M128_OR); RETURN(BINARY); }
+      <i> "m128.xor"         { OPCODE(M128_XOR); RETURN(BINARY); }
+      <i> "m128.not"         { OPCODE(M128_NOT); RETURN(UNARY); }
       <i> "f32x4.eq"         { OPCODE(F32X4_EQ); RETURN(BINARY); }
       <i> "f32x4.ne"         { OPCODE(F32X4_NE); RETURN(BINARY); }
       <i> "f32x4.lt"         { OPCODE(F32X4_LT); RETURN(BINARY); }
       <i> "f32x4.le"         { OPCODE(F32X4_LE); RETURN(BINARY); }
       <i> "f32x4.gt"         { OPCODE(F32X4_GT); RETURN(BINARY); }
       <i> "f32x4.ge"         { OPCODE(F32X4_GE); RETURN(BINARY); }
-      <i> "f32x4.load"         { OPCODE(F32X4_LOAD); RETURN(LOAD); }
-      <i> "f32x4.store"         { OPCODE(F32X4_STORE); RETURN(STORE); }
-      <i> "f32x4.load1"         { OPCODE(F32X4_LOAD1); RETURN(LOAD); }
-      <i> "f32x4.load2"         { OPCODE(F32X4_LOAD2); RETURN(LOAD); }
-      <i> "f32x4.load3"         { OPCODE(F32X4_LOAD3); RETURN(LOAD); }
-      <i> "f32x4.store1"         { OPCODE(F32X4_STORE1); RETURN(STORE); }
-      <i> "f32x4.store2"         { OPCODE(F32X4_STORE2); RETURN(STORE); }
-      <i> "f32x4.store3"         { OPCODE(F32X4_STORE3); RETURN(STORE); }
       <i> "f32x4.abs"         { OPCODE(F32X4_ABS); RETURN(UNARY); }
       <i> "f32x4.min"         { OPCODE(F32X4_MIN); RETURN(BINARY); }
       <i> "f32x4.max"         { OPCODE(F32X4_MAX); RETURN(BINARY); }
       <i> "f32x4.div"         { OPCODE(F32X4_DIV); RETURN(BINARY); }
       <i> "f32x4.sqrt"         { OPCODE(F32X4_SQRT); RETURN(UNARY); }
-      <i> "f32x4.rcp"         { OPCODE(F32X4_RCP); RETURN(UNARY); }
-      <i> "f32x4.rsqrt"         { OPCODE(F32X4_RSQRT); RETURN(UNARY); }
       <i> "f32x4.convert_s"         { OPCODE(F32X4_CONVERT_S); RETURN(UNARY); }
       <i> "f32x4.convert_u"         { OPCODE(F32X4_CONVERT_U); RETURN(UNARY); }
-      <i> "f64x2.reinterpret_i8x16"         { OPCODE(F64X2_REINTERPRET_I8X16); RETURN(UNARY); }
-      <i> "f64x2.reinterpret_i16x8"         { OPCODE(F64X2_REINTERPRET_I16X8); RETURN(UNARY); }
-      <i> "f64x2.reinterpret_i32x4"         { OPCODE(F64X2_REINTERPRET_I32X4); RETURN(UNARY); }
-      <i> "f64x2.reinterpret_i64x2"         { OPCODE(F64X2_REINTERPRET_I64X2); RETURN(UNARY); }
-      <i> "f64x2.reinterpret_f32x4"         { OPCODE(F64X2_REINTERPRET_F32X4); RETURN(UNARY); }
       <i> "f64x2.splat"         { OPCODE(F64X2_SPLAT); RETURN(UNARY); }
-      <i> "f64x2.extractLane"         { OPCODE(F64X2_EXTRACT); RETURN(BINARY); }
+      <i> "f64x2.extract_lane"         { OPCODE(F64X2_EXTRACT); RETURN(SIMD_EXTRACT); }
       <i> "f64x2.add"         { OPCODE(F64X2_ADD); RETURN(BINARY); }
       <i> "f64x2.sub"         { OPCODE(F64X2_SUB); RETURN(BINARY); }
       <i> "f64x2.mul"         { OPCODE(F64X2_MUL); RETURN(BINARY); }
       <i> "f64x2.neg"         { OPCODE(F64X2_NEG); RETURN(UNARY); }
-      <i> "f64x2.and"         { OPCODE(F64X2_AND); RETURN(BINARY); }
-      <i> "f64x2.or"         { OPCODE(F64X2_OR); RETURN(BINARY); }
-      <i> "f64x2.xor"         { OPCODE(F64X2_XOR); RETURN(BINARY); }
-      <i> "f64x2.not"         { OPCODE(F64X2_NOT); RETURN(UNARY); }
       <i> "f64x2.eq"         { OPCODE(F64X2_EQ); RETURN(BINARY); }
       <i> "f64x2.ne"         { OPCODE(F64X2_NE); RETURN(BINARY); }
       <i> "f64x2.lt"         { OPCODE(F64X2_LT); RETURN(BINARY); }
       <i> "f64x2.le"         { OPCODE(F64X2_LE); RETURN(BINARY); }
       <i> "f64x2.gt"         { OPCODE(F64X2_GT); RETURN(BINARY); }
       <i> "f64x2.ge"         { OPCODE(F64X2_GE); RETURN(BINARY); }
-      <i> "f64x2.load"         { OPCODE(F64X2_LOAD); RETURN(LOAD); }
-      <i> "f64x2.store"         { OPCODE(F64X2_STORE); RETURN(STORE); }
       <i> "f64x2.abs"         { OPCODE(F64X2_ABS); RETURN(UNARY); }
       <i> "f64x2.min"         { OPCODE(F64X2_MIN); RETURN(BINARY); }
       <i> "f64x2.max"         { OPCODE(F64X2_MAX); RETURN(BINARY); }
       <i> "f64x2.div"         { OPCODE(F64X2_DIV); RETURN(BINARY); }
       <i> "f64x2.sqrt"         { OPCODE(F64X2_SQRT); RETURN(UNARY); }
-      <i> "f64x2.rcp"         { OPCODE(F64X2_RCP); RETURN(UNARY); }
-      <i> "f64x2.rsqrt"         { OPCODE(F64X2_RSQRT); RETURN(UNARY); }
       <i> "f64x2.convert_s"         { OPCODE(F64X2_CONVERT_S); RETURN(UNARY); }
       <i> "f64x2.convert_u"         { OPCODE(F64X2_CONVERT_U); RETURN(UNARY); }
-      <i> "f64x2.swizzle"         { OPCODE(F64X2_SWIZZLE); RETURN(SIMD_SWIZZLE); }
-
-      <i> "i32x4.build"            { OPCODE(I32X4_BUILD); RETURN(SIMD_BUILD); }
-      <i> "i32x4.const"            { OPCODE(I32X4_CONST); RETURN(SIMD_CONST); }
-      <i> "i16x8.build"            { OPCODE(I16X8_BUILD); RETURN(SIMD_BUILD); }
-      <i> "i16x8.const"            { OPCODE(I16X8_CONST); RETURN(SIMD_CONST); }
-      <i> "i8x16.build"            { OPCODE(I8X16_BUILD); RETURN(SIMD_BUILD); }
-      <i> "i8x16.const"            { OPCODE(I8X16_CONST); RETURN(SIMD_CONST); }
-      <i> "b32x4.build"            { OPCODE(B32X4_BUILD); RETURN(SIMD_BUILD); }
-      <i> "b32x4.const"            { OPCODE(B32X4_CONST); RETURN(SIMD_CONST); }
-      <i> "b16x8.build"            { OPCODE(B16X8_BUILD); RETURN(SIMD_BUILD); }
-      <i> "b16x8.const"            { OPCODE(B16X8_CONST); RETURN(SIMD_CONST); }
-      <i> "b8x16.build"            { OPCODE(B8X16_BUILD); RETURN(SIMD_BUILD); }
-      <i> "b8x16.const"            { OPCODE(B8X16_CONST); RETURN(SIMD_CONST); }
-      <i> "f32x4.build"            { OPCODE(F32X4_BUILD); RETURN(SIMD_BUILD); }
-      <i> "f32x4.const"            { OPCODE(F32X4_CONST); RETURN(SIMD_CONST); }
-      <i> "i64x2.build"            { OPCODE(I64X2_BUILD); RETURN(SIMD_BUILD); }
-      <i> "i64x2.const"            { OPCODE(I64X2_CONST); RETURN(SIMD_CONST); }
-      <i> "f64x2.build"            { OPCODE(F64X2_BUILD); RETURN(SIMD_BUILD); }
-      <i> "f64x2.const"            { OPCODE(F64X2_CONST); RETURN(SIMD_CONST); }
-      <i> "b64x2.build"            { OPCODE(B64X2_BUILD); RETURN(SIMD_BUILD); }
-      <i> "b64x2.const"            { OPCODE(B64X2_CONST); RETURN(SIMD_CONST); }
-	<i> "i32x4.replaceLane"         { OPCODE(I32X4_REPLACE); RETURN(SIMD_REPLACE); }
-	<i> "i16x8.replaceLane"         { OPCODE(I16X8_REPLACE); RETURN(SIMD_REPLACE); }
-	<i> "i8x16.replaceLane"         { OPCODE(I8X16_REPLACE); RETURN(SIMD_REPLACE); }
-	<i> "b32x4.replaceLane"         { OPCODE(B32X4_REPLACE); RETURN(SIMD_REPLACE); }
-	<i> "b16x8.replaceLane"         { OPCODE(B16X8_REPLACE); RETURN(SIMD_REPLACE); }
-	<i> "b8x16.replaceLane"         { OPCODE(B8X16_REPLACE); RETURN(SIMD_REPLACE); }
-	<i> "f32x4.replaceLane"         { OPCODE(F32X4_REPLACE); RETURN(SIMD_REPLACE); }
-	<i> "b64x2.replaceLane"         { OPCODE(B64X2_REPLACE); RETURN(SIMD_REPLACE); }
-	<i> "f64x2.replaceLane"         { OPCODE(F64X2_REPLACE); RETURN(SIMD_REPLACE); }
-	<i> "i64x2.replaceLane"         { OPCODE(I64X2_REPLACE); RETURN(SIMD_REPLACE); }
+      <i> "m128.const"            { OPCODE(M128_CONST); RETURN(SIMD_CONST); }
+	<i> "i32x4.replace_lane"         { OPCODE(I32X4_REPLACE); RETURN(SIMD_REPLACE); }
+	<i> "i16x8.replace_lane"         { OPCODE(I16X8_REPLACE); RETURN(SIMD_REPLACE); }
+	<i> "i8x16.replace_lane"         { OPCODE(I8X16_REPLACE); RETURN(SIMD_REPLACE); }
+	<i> "f32x4.replace_lane"         { OPCODE(F32X4_REPLACE); RETURN(SIMD_REPLACE); }
+	<i> "f64x2.replace_lane"         { OPCODE(F64X2_REPLACE); RETURN(SIMD_REPLACE); }
+	<i> "i64x2.replace_lane"         { OPCODE(I64X2_REPLACE); RETURN(SIMD_REPLACE); }
 
       <i> "select"              { RETURN(SELECT); }
       <i> "unreachable"         { RETURN(UNREACHABLE); }

@@ -233,8 +233,9 @@ WasmFuncType* wasm_append_implicit_func_type(struct WasmAllocator* allocator,
   V(WASM_EXPR_TYPE_SIMD_BUILD, simd_build, simd_build)          \
   V(WASM_EXPR_TYPE_SIMD_SWIZZLE, simd_swizzle, simd_build)          \
   V(WASM_EXPR_TYPE_SIMD_SHUFFLE, simd_shuffle, simd_build)          \
-  V(WASM_EXPR_TYPE_SIMD_REPLACE, simd_replace, simd_build)          \
-  V(WASM_EXPR_TYPE_SIMD_SELECT,  simd_select, simd_build)
+  V(WASM_EXPR_TYPE_SIMD_REPLACE, simd_replace, store)          \
+  V(WASM_EXPR_TYPE_SIMD_SELECT,  simd_select, simd_build)           \
+  V(WASM_EXPR_TYPE_SIMD_SELECT,  simd_extract, store)          
 
 #define DEFINE_NEW_EXPR(type_, name, member)                    \
   WasmExpr* wasm_new_##name##_expr(WasmAllocator* allocator) {  \
@@ -364,6 +365,7 @@ void wasm_destroy_expr(WasmAllocator* allocator, WasmExpr* expr) {
     case WASM_EXPR_TYPE_SIMD_SHUFFLE:
     case WASM_EXPR_TYPE_SIMD_REPLACE:
     case WASM_EXPR_TYPE_SIMD_SELECT:
+    case WASM_EXPR_TYPE_SIMD_EXTRACT:
       break;
   }
   wasm_free(allocator, expr);
@@ -742,6 +744,9 @@ static WasmResult visit_expr(WasmExpr* expr, WasmExprVisitor* visitor) {
     case WASM_EXPR_TYPE_SIMD_SELECT:
 
         CALLBACK(on_simd_build_expr);
+        break;
+    case WASM_EXPR_TYPE_SIMD_EXTRACT:
+        //CALLBACK(on_simd_extract_expr);
         break;
   }
 
