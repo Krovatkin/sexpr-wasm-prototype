@@ -52,7 +52,8 @@ typedef struct WasmConst {
     uint64_t u64;
     uint32_t f32_bits;
     uint64_t f64_bits;
-    uint32_t v128_bits[4];
+    uint8_t  u8[16];
+    uint32_t m128_bits[4];
   };
 } WasmConst;
 WASM_DEFINE_VECTOR(const, WasmConst);
@@ -86,10 +87,8 @@ typedef enum WasmExprType {
   WASM_EXPR_TYPE_UNARY,
   WASM_EXPR_TYPE_SIMD_BUILD,
   WASM_EXPR_TYPE_SIMD_EXTRACT,
-  WASM_EXPR_TYPE_SIMD_SWIZZLE,
   WASM_EXPR_TYPE_SIMD_SHUFFLE,
   WASM_EXPR_TYPE_SIMD_REPLACE,
-  WASM_EXPR_TYPE_SIMD_SELECT,
   WASM_EXPR_TYPE_UNREACHABLE,
 } WasmExprType;
 
@@ -113,10 +112,12 @@ struct WasmExpr {
     struct { WasmVarVector targets; WasmVar default_target; } br_table;
     struct { WasmVar var; } call, call_indirect;
     WasmConst const_;
+    struct { WasmOpcode opcode; WasmConst const_; } simd_shuffle;
     struct { WasmVar var; } get_global, set_global;
     struct { WasmVar var; } get_local, set_local, tee_local;
     struct { WasmBlock true_; struct WasmExpr* false_; } if_;
-    struct { WasmOpcode opcode; uint32_t align; uint64_t offset; } load, store, extract;
+    struct { WasmOpcode opcode; uint32_t align; uint64_t offset; } load, store;
+    struct { WasmOpcode opcode; uint8_t lane_index; } extrepl;
   };
 };
 

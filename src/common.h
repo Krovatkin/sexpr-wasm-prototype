@@ -147,7 +147,7 @@ typedef enum WasmType {
 	  WASM_TYPE_I64 = -0x02,
 	  WASM_TYPE_F32 = -0x03,
 	  WASM_TYPE_F64 = -0x04,
-	  WASM_TYPE_M128 = -0x84,
+	  WASM_TYPE_M128 = -0x5,
 	  //WASM_TYPE_B2 = -0x06,
 	  //WASM_TYPE_B4 = -0x07,
 	  //WASM_TYPE_B8 = -0x08,
@@ -376,9 +376,9 @@ enum { WASM_USE_NATURAL_ALIGNMENT = 0xFFFFFFFF };
   V(I64, F64, ___, 0, 0xbd, I64_REINTERPRET_F64, "i64.reinterpret/f64") \
   V(F32, I32, ___, 0, 0xbe, F32_REINTERPRET_I32, "f32.reinterpret/i32") \
   V(F64, I64, ___, 0, 0xbf, F64_REINTERPRET_I64, "f64.reinterpret/i64") \
-  V(___, ___, ___, 3,  0x100, M128_CONST, "m128.const") \
-  V(___, ___, ___, 3,  0x101, M128_LOAD, "m128.load") \
-  V(___, ___, ___, 3,  0x102, M128_STORE, "m128.store") \
+  V(M128, ___, ___, 3,  0x100, M128_CONST, "m128.const") \
+  V(M128, I32, ___, 4,  0x101, M128_LOAD, "m128.load") \
+  V(___, I32, M128, 4,  0x102, M128_STORE, "m128.store") \
   V(M128, I32, ___, 0,  0x103, I8X16_SPLAT, "i8x16.splat") \
   V(M128, I32, ___, 0,  0x104, I16X8_SPLAT, "i16x8.splat") \
   V(M128, I32, ___, 0,  0x105, I32X4_SPLAT, "i32x4.splat") \
@@ -393,13 +393,13 @@ enum { WASM_USE_NATURAL_ALIGNMENT = 0xFFFFFFFF };
   V(I64, M128, ___, 2,  0x10e, I64X2_EXTRACT, "i64x2.extract") \
   V(F32, M128, ___, 4,  0x10f, F32X4_EXTRACT, "f32x4.extract") \
   V(F64, M128, ___, 2,  0x110, F64X2_EXTRACT, "f64x2.extract") \
-  V(M128, I32, ___, 16,  0x111, I8X16_REPLACE, "i8x16.replace") \
-  V(M128, I32, ___, 8,  0x112, I16X8_REPLACE, "i16x8.replace") \
-  V(M128, I32, ___, 4,  0x113, I32X4_REPLACE, "i32x4.replace") \
-  V(M128, I32, ___, 2,  0x114, I64X2_REPLACE, "i64x2.replace") \
-  V(M128, F32, ___, 4,  0x115, F32X4_REPLACE, "f32x4.replace") \
-  V(M128, F64, ___, 2,  0x116, F64X2_REPLACE, "f64x2.replace") \
-  V(___, ___, ___, 3,  0x117, V8X16_SHUFFLE, "v8x16.shuffle") \
+  V(M128, M128, I32, 16,  0x111, I8X16_REPLACE, "i8x16.replace") \
+  V(M128, M128, I32, 8,  0x112, I16X8_REPLACE, "i16x8.replace") \
+  V(M128, M128, I32, 4,  0x113, I32X4_REPLACE, "i32x4.replace") \
+  V(M128, M128, I64, 2,  0x114, I64X2_REPLACE, "i64x2.replace") \
+  V(M128, M128, F32, 4,  0x115, F32X4_REPLACE, "f32x4.replace") \
+  V(M128, M128, F64, 2,  0x116, F64X2_REPLACE, "f64x2.replace") \
+  V(M128, M128, I32, 16,  0x117, V8X16_SHUFFLE, "v8x16.shuffle") \
   V(M128, M128, M128, 0,  0x118, I8X16_ADD, "i8x16.add") \
   V(M128, M128, M128, 0,  0x119, I16X8_ADD, "i16x8.add") \
   V(M128, M128, M128, 0,  0x11a, I32X4_ADD, "i32x4.add") \
@@ -435,19 +435,19 @@ enum { WASM_USE_NATURAL_ALIGNMENT = 0xFFFFFFFF };
   V(M128, M128, I32, 0,  0x138, I32X4_SHR_U, "i32x4.shr_u") \
   V(M128, M128, I32, 0,  0x139, I64X2_SHR_S, "i64x2.shr_s") \
   V(M128, M128, I32, 0,  0x13a, I64X2_SHR_U, "i64x2.shr_u") \
-  V(___, ___, ___, 3,  0x13b, M128_AND, "m128.and") \
-  V(___, ___, ___, 3,  0x13c, M128_OR, "m128.or") \
-  V(___, ___, ___, 3,  0x13d, M128_XOR, "m128.xor") \
-  V(___, ___, ___, 3,  0x13e, M128_NOT, "m128.not") \
-  V(___, ___, ___, 3,  0x13f, M128_BITSELECT, "m128.bitselect") \
-  V(___, ___, ___, 3,  0x140, I8X16_ANY_TRUE, "i8x16.any_true") \
-  V(___, ___, ___, 3,  0x141, I16X8_ANY_TRUE, "i16x8.any_true") \
-  V(___, ___, ___, 3,  0x142, I32X4_ANY_TRUE, "i32x4.any_true") \
-  V(___, ___, ___, 3,  0x143, I64X2_ANY_TRUE, "i64x2.any_true") \
-  V(___, ___, ___, 3,  0x144, I8X16_ALL_TRUE, "i8x16.all_true") \
-  V(___, ___, ___, 3,  0x145, I16X8_ALL_TRUE, "i16x8.all_true") \
-  V(___, ___, ___, 3,  0x146, I32X4_ALL_TRUE, "i32x4.all_true") \
-  V(___, ___, ___, 3,  0x147, I64X2_ALL_TRUE, "i64x2.all_true") \
+  V(M128, M128, M128, 3,  0x13b, M128_AND, "m128.and") \
+  V(M128, M128, M128, 3,  0x13c, M128_OR, "m128.or") \
+  V(M128, M128, M128, 3,  0x13d, M128_XOR, "m128.xor") \
+  V(M128, M128, M128, 3,  0x13e, M128_NOT, "m128.not") \
+  V(M128, M128, M128, 3,  0x13f, M128_BITSELECT, "m128.bitselect") \
+  V(I32, M128, M128, 3,  0x140, I8X16_ANY_TRUE, "i8x16.any_true") \
+  V(I32, M128, M128, 3,  0x141, I16X8_ANY_TRUE, "i16x8.any_true") \
+  V(I32, M128, M128, 3,  0x142, I32X4_ANY_TRUE, "i32x4.any_true") \
+  V(I32, M128, M128, 3,  0x143, I64X2_ANY_TRUE, "i64x2.any_true") \
+  V(I32, M128, M128, 3,  0x144, I8X16_ALL_TRUE, "i8x16.all_true") \
+  V(I32, M128, M128, 3,  0x145, I16X8_ALL_TRUE, "i16x8.all_true") \
+  V(I32, M128, M128, 3,  0x146, I32X4_ALL_TRUE, "i32x4.all_true") \
+  V(I32, M128, M128, 3,  0x147, I64X2_ALL_TRUE, "i64x2.all_true") \
   V(M128, M128, M128, 0,  0x148, I8X16_EQ, "i8x16.eq") \
   V(M128, M128, M128, 0,  0x149, I16X8_EQ, "i16x8.eq") \
   V(M128, M128, M128, 0,  0x14a, I32X4_EQ, "i32x4.eq") \
@@ -508,14 +508,14 @@ enum { WASM_USE_NATURAL_ALIGNMENT = 0xFFFFFFFF };
   V(M128, M128, M128, 0,  0x181, F64X2_MUL, "f64x2.mul") \
   V(M128, M128, ___, 0,  0x182, F32X4_SQRT, "f32x4.sqrt") \
   V(M128, M128, ___, 0,  0x183, F64X2_SQRT, "f64x2.sqrt") \
-  V(___, ___, ___, 3,  0x184, F32X4_CONVERT_S, "f32x4.convert_s") \
-  V(___, ___, ___, 3,  0x185, F32X4_CONVERT_U, "f32x4.convert_u") \
-  V(___, ___, ___, 3,  0x186, F64X2_CONVERT_S, "f64x2.convert_s") \
-  V(___, ___, ___, 3,  0x187, F64X2_CONVERT_U, "f64x2.convert_u") \
-  V(___, ___, ___, 3,  0x188, I32X4_TRUNC_S, "i32x4.trunc_s") \
-  V(___, ___, ___, 3,  0x189, I32X4_TRUNC_U, "i32x4.trunc_u") \
-  V(___, ___, ___, 3,  0x18a, I64X2_TRUNC_S, "i64x2.trunc_s") \
-  V(___, ___, ___, 3,  0x18b, I64X2_TRUNC_U, "i64x2.trunc_u")
+  V(M128, M128, ___, 3,  0x184, F32X4_CONVERT_S, "f32x4.convert_s") \
+  V(M128, M128, ___, 3,  0x185, F32X4_CONVERT_U, "f32x4.convert_u") \
+  V(M128, M128, ___, 3,  0x186, F64X2_CONVERT_S, "f64x2.convert_s") \
+  V(M128, M128, ___, 3,  0x187, F64X2_CONVERT_U, "f64x2.convert_u") \
+  V(M128, M128, ___, 3,  0x188, I32X4_TRUNC_S, "i32x4.trunc_s") \
+  V(M128, M128, ___, 3,  0x189, I32X4_TRUNC_U, "i32x4.trunc_u") \
+  V(M128, M128, ___, 3,  0x18a, I64X2_TRUNC_S, "i64x2.trunc_s") \
+  V(M128, M128, ___, 3,  0x18b, I64X2_TRUNC_U, "i64x2.trunc_u")
 
 typedef enum WasmOpcode {
 #define V(rtype, type1, type2, mem_size, code, NAME, text) \

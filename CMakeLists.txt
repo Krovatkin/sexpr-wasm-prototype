@@ -166,7 +166,7 @@ if (RUN_BISON AND BISON_FOUND)
   BISON_TARGET(WASM_AST_PARSER_GEN_C
     ${WABT_SOURCE_DIR}/src/ast-parser.y
     ${WASM_AST_PARSER_GEN_C}
-    COMPILE_FLAGS --defines=${WABT_BINARY_DIR}/ast-parser-gen.h
+    COMPILE_FLAGS "-v -Wconflicts-sr --defines=${WABT_BINARY_DIR}/ast-parser-gen.h -Wconflicts-sr"
   )
 else ()
   set(WASM_AST_PARSER_GEN_C src/prebuilt/ast-parser-gen.c)

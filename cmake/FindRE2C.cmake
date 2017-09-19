@@ -98,6 +98,8 @@ if(${RE2C_PUBLIC_VAR_NS}_EXECUTABLE)
         # - get_filename_component(PARSED_ARGS_INPUT ${PARSED_ARGS_INPUT} ABSOLUTE)
         # - get_filename_component(PARSED_ARGS_OUTPUT ${PARSED_ARGS_OUTPUT} ABSOLUTE)
         # ?
+
+        message ( STATUS " SUKA BLYAT : " ${PARSED_ARGS_OPTIONS})
         add_custom_command(
             OUTPUT ${PARSED_ARGS_OUTPUT}
             COMMAND ${${RE2C_PUBLIC_VAR_NS}_EXECUTABLE} ${PARSED_ARGS_OPTIONS} -o ${PARSED_ARGS_OUTPUT} ${PARSED_ARGS_INPUT}

@@ -238,12 +238,7 @@ int wasm_ast_lexer_lex(WASM_AST_PARSER_STYPE* lval,
       <i> "i64"                 { TYPE(I64); RETURN(VALUE_TYPE); }
       <i> "f32"                 { TYPE(F32); RETURN(VALUE_TYPE); }
       <i> "f64"                 { TYPE(F64); RETURN(VALUE_TYPE); }
-      <i> "f32x4"               { TYPE(M128); RETURN(VALUE_TYPE); }
-      <i> "i32x4"               { TYPE(M128); RETURN(VALUE_TYPE); }
-      <i> "i16x8"               { TYPE(M128); RETURN(VALUE_TYPE); }
-      <i> "i8x16"               { TYPE(M128); RETURN(VALUE_TYPE); }
-      <i> "i64x2"               { TYPE(M128); RETURN(VALUE_TYPE); }
-      <i> "f64x2"               { TYPE(M128); RETURN(VALUE_TYPE); }
+      <i> "m128"                { TYPE(M128); RETURN(VALUE_TYPE); }
       <i> "anyfunc"             { RETURN(ANYFUNC); }
       <i> "mut"                 { RETURN(MUT); }
       <i> "nop"                 { RETURN(NOP); }
@@ -292,7 +287,7 @@ int wasm_ast_lexer_lex(WASM_AST_PARSER_STYPE* lval,
       <i> "i64.store32"         { OPCODE(I64_STORE32); RETURN(STORE); }
       <i> "offset=" nat         { TEXT_AT(7); RETURN(OFFSET_EQ_NAT); }
       <i> "align=" nat          { TEXT_AT(6); RETURN(ALIGN_EQ_NAT); }
-      <i> "lane=" nat           { TEXT_AT(6); RETURN(LANE_EQ_NAT); }
+      <i> "lane=" nat           { TEXT_AT(5); RETURN(LANE_EQ_NAT); }
       <i> "i32.const"           { TYPE(I32); RETURN(CONST); }
       <i> "i64.const"           { TYPE(I64); RETURN(CONST); }
       <i> "f32.const"           { TYPE(F32); RETURN(CONST); }
@@ -542,12 +537,29 @@ int wasm_ast_lexer_lex(WASM_AST_PARSER_STYPE* lval,
       <i> "f64x2.convert_s"         { OPCODE(F64X2_CONVERT_S); RETURN(UNARY); }
       <i> "f64x2.convert_u"         { OPCODE(F64X2_CONVERT_U); RETURN(UNARY); }
       <i> "m128.const"            { OPCODE(M128_CONST); RETURN(SIMD_CONST); }
-	<i> "i32x4.replace_lane"         { OPCODE(I32X4_REPLACE); RETURN(SIMD_REPLACE); }
-	<i> "i16x8.replace_lane"         { OPCODE(I16X8_REPLACE); RETURN(SIMD_REPLACE); }
-	<i> "i8x16.replace_lane"         { OPCODE(I8X16_REPLACE); RETURN(SIMD_REPLACE); }
-	<i> "f32x4.replace_lane"         { OPCODE(F32X4_REPLACE); RETURN(SIMD_REPLACE); }
-	<i> "f64x2.replace_lane"         { OPCODE(F64X2_REPLACE); RETURN(SIMD_REPLACE); }
-	<i> "i64x2.replace_lane"         { OPCODE(I64X2_REPLACE); RETURN(SIMD_REPLACE); }
+      <i> "m128.load"            { OPCODE(M128_LOAD); RETURN(LOAD); }
+      <i> "m128.store"            { OPCODE(M128_STORE); RETURN(STORE); }
+      <i> "m128.bitselect"            { OPCODE(M128_BITSELECT); RETURN(SIMD_BUILD); }
+      <i> "v8x16.shuffle"            { OPCODE(V8X16_SHUFFLE); RETURN(SIMD_SHUFFLE); }
+      
+      
+      
+    <i> "i32x4.replace_lane"         { OPCODE(I32X4_REPLACE); RETURN(SIMD_REPLACE); }
+    <i> "i16x8.replace_lane"         { OPCODE(I16X8_REPLACE); RETURN(SIMD_REPLACE); }
+    <i> "i8x16.replace_lane"         { OPCODE(I8X16_REPLACE); RETURN(SIMD_REPLACE); }
+    <i> "f32x4.replace_lane"         { OPCODE(F32X4_REPLACE); RETURN(SIMD_REPLACE); }
+    <i> "f64x2.replace_lane"         { OPCODE(F64X2_REPLACE); RETURN(SIMD_REPLACE); }
+    <i> "i64x2.replace_lane"         { OPCODE(I64X2_REPLACE); RETURN(SIMD_REPLACE); }
+    
+    <i> "i32x4.any_true"         { OPCODE(I32X4_ANY_TRUE); RETURN(UNARY); }
+    <i> "i16x8.any_true"         { OPCODE(I16X8_ANY_TRUE); RETURN(UNARY); }
+    <i> "i8x16.any_true"         { OPCODE(I8X16_ANY_TRUE); RETURN(UNARY); }
+    <i> "i64x2.any_true"         { OPCODE(I64X2_ANY_TRUE); RETURN(UNARY); }
+    
+    <i> "i32x4.all_true"         { OPCODE(I32X4_ALL_TRUE); RETURN(UNARY); }
+    <i> "i16x8.all_true"         { OPCODE(I16X8_ALL_TRUE); RETURN(UNARY); }
+    <i> "i8x16.all_true"         { OPCODE(I8X16_ALL_TRUE); RETURN(UNARY); }
+    <i> "i64x2.all_true"         { OPCODE(I64X2_ALL_TRUE); RETURN(UNARY); }
 
       <i> "select"              { RETURN(SELECT); }
       <i> "unreachable"         { RETURN(UNREACHABLE); }

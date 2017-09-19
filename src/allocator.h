@@ -61,8 +61,8 @@ extern WasmAllocator g_wasm_libc_allocator;
 #define wasm_realloc(allocator, p, size, align) \
   (allocator)->realloc((allocator), (p), (size), (align), __FILE__, __LINE__)
 
-#define wasm_free(allocator, p) \
-  (allocator)->free((allocator), (p), __FILE__, __LINE__)
+#define wasm_free(allocator, pp) \
+  (allocator)->free((allocator), (pp), __FILE__, __LINE__)
 
 #define wasm_destroy_allocator(allocator) (allocator)->destroy(allocator)
 #define wasm_mark(allocator) (allocator)->mark(allocator)

@@ -217,38 +217,17 @@ void wasm_write_str(WasmStream* stream,
 }
 
 void wasm_write_opcode(WasmStream* stream, uint16_t opcode) {
-
-  /*
+  
+  const char* opcode_name = wasm_get_opcode_name(opcode);
   if (opcode >= WASM_EXTENDED_START) {
-      wasm_write_u8(stream, WASM_EXTENDED_OPCODE, "extended");
-      const char* opcode_name = wasm_get_opcode_name(opcode);
-      opcode -= WASM_EXTENDED_START;
-      assert (opcode < WASM_EXTENDED_START);
-      wasm_write_u8(stream, (uint8_t) opcode, opcode_name);
+      wasm_write_u8(stream, WASM_SIMD_START, "simd start");
+      wasm_write_u32_leb128(stream, opcode - WASM_EXTENDED_START, opcode_name);
   }
   else {
-      wasm_write_u8(stream, (uint8_t) opcode, wasm_get_opcode_name(opcode));
+      wasm_write_u8(stream, (uint8_t) opcode, opcode_name);
   }
-  */
-
-  /*
-  if (opcode >= WASM_EXTENDED_START2) {
-
-      wasm_write_u8(stream, WASM_EXTENDED_OPCODE2, "extended2");
-      opcode -= WASM_EXTENDED_START2;
-      assert (opcode < WASM_EXTENDED_START2);
-
-  } else if (opcode >= WASM_EXTENDED_START) {
-      
-      opcode -= WASM_EXTENDED_START;
-      assert (opcode < WASM_EXTENDED_START);
-  }
-    
-  wasm_write_u8(stream, (uint8_t) opcode, opcode_name);
-  */
-  const char* opcode_name = wasm_get_opcode_name(opcode);
-  wasm_write_u8(stream, WASM_SIMD_START, "simd start");
-  wasm_write_u32_leb128(stream, opcode, opcode_name);
+  
+  
 
 }
 
@@ -323,13 +302,20 @@ static void write_expr(Context* ctx,
   switch (expr->type) {
     case WASM_EXPR_TYPE_SIMD_REPLACE:
     case WASM_EXPR_TYPE_SIMD_EXTRACT:
-        wasm_write_opcode(&ctx->stream, expr->store.opcode);
-        wasm_write_u8(&ctx->stream, (uint8_t) expr->store.offset, "lane index");
+        wasm_write_opcode(&ctx->stream, expr->extrepl.opcode);
+        wasm_write_u8(&ctx->stream, expr->extrepl.lane_index, "lane index");
+        break;
     case WASM_EXPR_TYPE_SIMD_BUILD:
-    case WASM_EXPR_TYPE_SIMD_SWIZZLE:
-    case WASM_EXPR_TYPE_SIMD_SHUFFLE:
-    case WASM_EXPR_TYPE_SIMD_SELECT:
         wasm_write_opcode(&ctx->stream, expr->simd_build.opcode);
+        break;
+    case WASM_EXPR_TYPE_SIMD_SHUFFLE:
+        wasm_write_opcode(&ctx->stream, expr->simd_build.opcode);
+        //printf("expr addr %p array addr %p \n", expr, expr->const_.u8);
+        for (int  i = 0; i < 16; i++) 
+        {
+            //printf("expr %d %d\n", i, expr->simd_shuffle.const_.u8[i]);
+            wasm_write_u8(&ctx->stream, expr->simd_shuffle.const_.u8[i], "lane index");
+        }
         break;
     case WASM_EXPR_TYPE_BINARY:
       wasm_write_opcode(&ctx->stream, expr->binary.opcode);
@@ -413,9 +399,9 @@ static void write_expr(Context* ctx,
 //        case WASM_TYPE_B4:
 //        case WASM_TYPE_B8:
 //        case WASM_TYPE_B16:
-            wasm_write_opcode(&ctx->stream, get_simd_const_opcode(expr->const_.type));
+            wasm_write_opcode(&ctx->stream, WASM_OPCODE_M128_CONST);
             for (unsigned i = 0; i < SIMD_VEC_SIZE_IN_DBWORDS; i++) {
-                wasm_write_u32(&ctx->stream, expr->const_.v128_bits[i], "m128 constant");
+                wasm_write_u32(&ctx->stream, expr->const_.m128_bits[i], "m128 constant");
             }
         
       

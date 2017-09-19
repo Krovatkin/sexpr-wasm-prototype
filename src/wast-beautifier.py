@@ -22,7 +22,7 @@ simple_mode = False
 
 for l in open(in_file):
     if l.startswith(";;"):
-        print (l)
+        pprint(l)
         continue
     l = l.replace(")", ") ")
     tokens = re.split("[\t ]+", l)
@@ -41,6 +41,8 @@ for l in open(in_file):
             pprint("\n"+ident_str+tok+" ")
         elif tok.startswith("("):
             ident_str = "".ljust(ident, "\t")
+            if tok.startswith("(func)"):
+                pprint("\n")
             pprint("\n"+ident_str+tok)
             ident += 1
         elif tok.endswith(")"):

@@ -326,6 +326,13 @@ static void reset_type_stack_to_limit(Context* ctx) {
 static void push_type(Context* ctx, WasmType type) {
   if (type != WASM_TYPE_VOID)
     wasm_append_type_value(ctx->allocator, &ctx->type_stack, &type);
+
+  // printf("PUSH: size %zu\n ", ctx->type_stack.size);  
+  // for (size_t i = 0; i < ctx->type_stack.size; i++) 
+  // {
+        // printf("%d %s\n", (int)i,  wasm_get_type_name (ctx->type_stack.data[i]));
+  // }
+  
 }
 
 static void push_types(Context* ctx, const WasmTypeVector* types) {
@@ -356,6 +363,12 @@ static WasmType pop_type(Context* ctx) {
   WasmType result = top_type(ctx);
   if (ctx->type_stack.size > type_stack_limit(ctx))
     ctx->type_stack.size--;
+
+  // printf("POP:\n %zu\n ", ctx->type_stack.size);  
+  // for (size_t i = 0; i < ctx->type_stack.size; i++) 
+  // {
+        // printf("%d %s\n", (int)i,  wasm_get_type_name (ctx->type_stack.data[i]));
+  // }
   return result;
 }
 
@@ -581,68 +594,43 @@ static void check_has_memory(Context* ctx,
 
 static void check_expr(Context* ctx, const WasmExpr* expr) {
   switch (expr->type) {
-  case WASM_EXPR_TYPE_SIMD_SWIZZLE:
   case WASM_EXPR_TYPE_SIMD_SHUFFLE:
   {
       const WasmLocation* loc =  &expr->loc;
-      size_t lanes = wasm_get_opcode_memory_size(expr->simd_build.opcode);
-      for (uint i = 0; i < lanes; i++) {
-          check_type(ctx, loc , pop_type(ctx), WASM_TYPE_I32, "index expected");
-      }
+      
+      // size_t lanes = wasm_get_opcode_memory_size(expr->simd_build.opcode);
+      // for (uint i = 0; i < lanes; i++) {
+          // check_type(ctx, loc , pop_type(ctx), wasm_get_opcode_param_type_2(expr->simd_build.opcode), "index expected");
+      // }
 
       WasmType actual = pop_type(ctx);
-      check_type(ctx, loc, actual, wasm_get_opcode_param_type_1(expr->simd_build.opcode), "wrong SIMD arg");
+      check_type(ctx, loc, actual, wasm_get_opcode_param_type_1(expr->simd_build.opcode), "wrong SIMD arg 1 ");
 
       if (expr->type == WASM_EXPR_TYPE_SIMD_SHUFFLE) {
           actual = pop_type(ctx);
-          check_type(ctx, loc, actual, wasm_get_opcode_param_type_2(expr->simd_build.opcode), "wrong SIMD arg");
+          check_type(ctx, loc, actual, wasm_get_opcode_param_type_1(expr->simd_build.opcode), "wrong SIMD arg 2");
       }
 
      push_type(ctx, wasm_get_opcode_result_type(expr->simd_build.opcode));
      break;
   }
+  case WASM_EXPR_TYPE_SIMD_EXTRACT:
   case WASM_EXPR_TYPE_SIMD_REPLACE:
-  {
-      const WasmLocation* loc =  &expr->loc;
-      
-      
-        size_t lanes = wasm_get_opcode_memory_size(expr->store.opcode);
-        if (expr->store.offset >= lanes) 
+    {
+        size_t lanes = wasm_get_opcode_memory_size(expr->extrepl.opcode);
+        if (expr->extrepl.lane_index >= lanes) 
         {
             print_error(ctx, &expr->loc,
-                    "lane index, %lu is greater than number of lanes, %lu ", expr->store.offset, lanes);
+                    "lane index, %u is greater than number of lanes, %lu ", expr->extrepl.lane_index, lanes);
         }
-      
-      WasmType actual = pop_type(ctx);
-      check_type(ctx, loc, actual, wasm_get_opcode_param_type_1(expr->store.opcode), "wrong lane type arg");
-
-      actual = pop_type(ctx);
-      check_type(ctx, loc, actual, wasm_get_opcode_result_type(expr->store.opcode) /* SIMD arg and return types are the same */, "wrong arg type");
-
-      push_type(ctx, wasm_get_opcode_result_type(expr->simd_build.opcode));
-      break;
-  }
-  case WASM_EXPR_TYPE_SIMD_SELECT:
-  {
-      const WasmLocation* loc =  &expr->loc;
-      WasmType actual = pop_type(ctx);
-      size_t lanes = wasm_get_opcode_memory_size(expr->store.opcode);
-        if (expr->store.offset >= lanes) 
-        {
-            print_error(ctx, &expr->loc,
-                    "lane index, %lu is greater than number of lanes, %lu ", expr->store.offset, lanes);
+        if (expr->type == WASM_EXPR_TYPE_SIMD_EXTRACT) {
+            check_opcode1(ctx, &expr->loc, expr->extrepl.opcode);
         }
-      check_type(ctx, loc, actual, wasm_get_opcode_param_type_2(expr->simd_build.opcode), "wrong arg type");
-
-      actual = pop_type(ctx);
-      check_type(ctx, loc, actual, wasm_get_opcode_param_type_2(expr->simd_build.opcode), "wrong arg type");
-
-      actual = pop_type(ctx);
-      check_type(ctx, loc, actual, wasm_get_opcode_param_type_1(expr->simd_build.opcode), "wrong mask type");
-      push_type(ctx, wasm_get_opcode_result_type(expr->simd_build.opcode));
-      break;
-  }
-
+        else {
+            check_opcode2(ctx, &expr->loc, expr->extrepl.opcode);
+        }
+        break;
+    }
     case WASM_EXPR_TYPE_SIMD_BUILD:
     {
         size_t lanes = wasm_get_opcode_memory_size(expr->simd_build.opcode);
@@ -657,17 +645,6 @@ static void check_expr(Context* ctx, const WasmExpr* expr) {
     case WASM_EXPR_TYPE_BINARY:
       check_opcode2(ctx, &expr->loc, expr->binary.opcode);
       break;
-    case WASM_EXPR_TYPE_SIMD_EXTRACT:
-    {
-        size_t lanes = wasm_get_opcode_memory_size(expr->store.opcode);
-        if (expr->store.offset >= lanes) 
-        {
-            print_error(ctx, &expr->loc,
-                    "lane index, %lu is greater than number of lanes, %lu ", expr->store.offset, lanes);
-        }
-        check_opcode1(ctx, &expr->loc, expr->store.opcode);
-        break;
-    }
     case WASM_EXPR_TYPE_BLOCK: {
       LabelNode node;
       push_label(ctx, &expr->loc, &node, LABEL_TYPE_BLOCK, &expr->block.sig);

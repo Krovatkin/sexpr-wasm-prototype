@@ -26,6 +26,8 @@
 #include "binary-reader-ast.h"
 #include "binary-reader.h"
 #include "literal.h"
+#include <signal.h>
+
 
 #define INVALID_VAR_INDEX (-1)
 
@@ -136,6 +138,7 @@
 static WasmExprList join_exprs1(WasmLocation* loc, WasmExpr* expr1);
 static WasmExprList join_exprs2(WasmLocation* loc, WasmExprList* expr1,
                                 WasmExpr* expr2);
+static void append_expr_list(WasmExprList* expr_list, WasmExprList* expr);
 
 static WasmFuncField* new_func_field(WasmAllocator* allocator) {
   return wasm_alloc_zero(allocator, sizeof(WasmFuncField), WASM_DEFAULT_ALIGN);
@@ -569,16 +572,14 @@ plain_instr :
 
   | SIMD_EXTRACT lane_opt {
       $$ = wasm_new_simd_extract_expr(parser->allocator);
-      $$->store.opcode = $1;
-      $$->store.offset = $2;
-      $$->store.align = 0;
+      $$->extrepl.opcode = $1;
+      $$->extrepl.lane_index = $2;
     }    
 
   | SIMD_REPLACE lane_opt {
       $$ = wasm_new_simd_replace_expr(parser->allocator);
-      $$->store.opcode = $1;
-      $$->store.offset = $2;
-      $$->store.align = 0;
+      $$->extrepl.opcode = $1;
+      $$->extrepl.lane_index = $2;
     }
     
   | CONST literal {
@@ -619,22 +620,14 @@ plain_instr :
       $$ = wasm_new_simd_build_expr(parser->allocator);
       $$->simd_build.opcode = $1;
     }
-  | SIMD_SWIZZLE {
-      $$ = wasm_new_simd_swizzle_expr(parser->allocator);
-      $$->simd_build.opcode = $1;
-    }
-  | SIMD_SHUFFLE {
+  /*  
+  
+  
+  | SIMD_SHUFFLE  const const const const const const const const const const const const const const const const {
       $$ = wasm_new_simd_shuffle_expr(parser->allocator);
       $$->simd_build.opcode = $1;
     }
-  | SIMD_REPLACE {
-      $$ = wasm_new_simd_replace_expr(parser->allocator);
-      $$->simd_build.opcode = $1;
-    }
-  | SIMD_SELECT {
-      $$ = wasm_new_simd_select_expr(parser->allocator);
-      $$->simd_build.opcode = $1;
-    }
+  */  
 ;
 block_instr :
     BLOCK labeling_opt block END labeling_opt {
@@ -680,6 +673,74 @@ expr1 :
     plain_instr expr_list {
       $$ = join_exprs2(&@1, &$2, $1);
     }
+    
+  | SIMD_SHUFFLE expr expr const const const const const const const const const const const const const const const const { 
+  
+/*
+static WasmExprList join_exprs1(WasmLocation* loc, WasmExpr* expr1);
+static WasmExprList join_exprs2(WasmLocation* loc, WasmExprList* expr1,
+                                WasmExpr* expr2);
+static void append_expr_list(WasmExprList* expr_list, WasmExprList* expr) {
+                                
+*/  
+    WasmExpr* expr = wasm_new_simd_shuffle_expr(parser->allocator);
+    expr->simd_shuffle.opcode = $1;
+    //TODO check the size
+
+    
+    
+    
+    //printf("%p %p %p %p %p %p %p %p %p %p %p %p %p %p %p %p\n", &$4,&$5, &$6, &$7, &$8, &$9, &$10, &$11, &$12, &$13, &$14, &$15, &$16, &$17,&$18, &$19);
+  
+    printf("name is %.*s\n", (int)$2.first->get_local.var.name.length, $2.first->get_local.var.name.start);
+    printf("name is %.*s\n", (int)$3.first->get_local.var.name.length, $3.first->get_local.var.name.start);
+    
+    
+    WasmExprList tmp = join_exprs1(&@1, expr);
+    
+    //static void append_expr_list(WasmExprList* expr_list, WasmExprList* expr)
+    
+    //append_expr_list(&$3, &$2);
+    //append_expr_list(&$3, &tmp);    
+    //$$ = $3;
+    
+    append_expr_list(&$2, &$3);
+    append_expr_list(&$2, &tmp);    
+    $$ = $2;
+    
+    printf("SIZE OF SHUFFLE LIST : %zu\n", tmp.size);
+    
+    
+    
+    expr->simd_shuffle.const_.u8[0] = $4.u32;
+    expr->simd_shuffle.const_.u8[1] = $5.u32;
+    expr->simd_shuffle.const_.u8[2] = $6.u32;
+    expr->simd_shuffle.const_.u8[3] = $7.u32;
+    expr->simd_shuffle.const_.u8[4] = $8.u32;
+    expr->simd_shuffle.const_.u8[5] = $9.u32;
+    expr->simd_shuffle.const_.u8[6] = $10.u32;
+    expr->simd_shuffle.const_.u8[7] = $11.u32;
+    expr->simd_shuffle.const_.u8[8] = $12.u32;
+    expr->simd_shuffle.const_.u8[9] = $13.u32;
+    expr->simd_shuffle.const_.u8[10] = $14.u32;
+    expr->simd_shuffle.const_.u8[11] = $15.u32;
+    expr->simd_shuffle.const_.u8[12] = $16.u32;
+    expr->simd_shuffle.const_.u8[13] = $17.u32;
+    expr->simd_shuffle.const_.u8[14] = $18.u32;
+    expr->simd_shuffle.const_.u8[15] = $19.u32;
+    
+    //printf("expr addr %p array addr %p \n", expr, expr->const_.u8);
+    //raise(SIGINT);
+    
+    // for (int i = 0; i < 16; i++) 
+    // {
+        // printf("expr %d %d\n", i, expr->simd_shuffle.const_.u8[i]);
+    // }
+    
+    //append_expr_list(&$2, &$$);
+    //append_expr_list(&$2, &$3);
+  }
+      
   | SIMD_CONST const_list {
         
     WasmExpr* expr = wasm_new_const_expr(parser->allocator);
@@ -695,8 +756,8 @@ expr1 :
     expr->const_.loc = @1;
     expr->const_.type = wasm_get_opcode_result_type($1);
     
-    char* dst = (char*) expr->const_.v128_bits;   
-    for (size_t i = 0; i < NUM_BYTES; i++, dst++) {
+    char* dst = (char*) expr->const_.m128_bits;   
+    for (size_t i = 0; i < NUM_BYTES; i++) {
         
         if ((uint32_t) ((uint8_t) $2.data[i].u32) != (uint32_t) $2.data[i].u32) {
             wasm_ast_parser_error(&@1, lexer, parser, "exceeds one byte value");
